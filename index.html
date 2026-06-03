@@ -19,7 +19,7 @@
             color: #1e2a1f;
         }
 
-        /* Tabs */
+        /* Tabs - botones más flexibles */
         .tabs {
             display: flex;
             gap: 8px;
@@ -31,21 +31,28 @@
             background: #ffdd99;
             border: 2px solid #ff9900;
             color: #5a2e00;
-            padding: 10px 20px;
+            padding: 8px 12px;
             border-radius: 40px;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: 0.2s;
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            flex: 1;
             text-align: center;
-            min-width: 100px;
+            flex: 0 1 auto;
+            white-space: nowrap;
         }
         .tab-btn.active {
             background: #ff9900;
             color: white;
             border-color: white;
+        }
+        /* En móvil muy pequeño, reducir padding */
+        @media (max-width: 480px) {
+            .tab-btn {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
         }
         .tab-pane {
             display: none;
@@ -214,7 +221,7 @@
             margin-top: 6px;
         }
 
-        /* Canvas Eliminatorias - con scroll y zoom nativo */
+        /* Canvas responsivo - todo el bracket se ajusta al ancho */
         .canvas-wrapper {
             background: #2e7d32;
             border-radius: 24px;
@@ -223,12 +230,13 @@
             width: 100%;
             height: 70vh;
             -webkit-overflow-scrolling: touch;
+            position: relative;
         }
         canvas {
             display: block;
             background: radial-gradient(circle, #3cae5a, #1a5a2a);
-            width: 2400px;
-            height: 1600px;
+            width: 100%;
+            height: auto;
         }
         .info-badge {
             text-align: center;
@@ -260,7 +268,7 @@
 <div class="tabs">
     <button class="tab-btn active" data-tab="grupos">🏆 GRUPOS</button>
     <button class="tab-btn" data-tab="segunda">⚔️ SEGUNDA FASE</button>
-    <button class="tab-btn" data-tab="eliminatorias">🎯 ELIMINATORIAS</button>
+    <button class="tab-btn" data-tab="eliminatorias">🏅 FINAL</button>
 </div>
 
 <div id="grupos" class="tab-pane active-pane">
@@ -273,7 +281,7 @@
 
 <div id="eliminatorias" class="tab-pane">
     <div class="canvas-wrapper" id="canvasWrapper">
-        <canvas id="bracketCanvas" width="2400" height="1600"></canvas>
+        <canvas id="bracketCanvas"></canvas>
     </div>
     <div class="info-badge">🤏 Usa dos dedos para hacer zoom | Un dedo para desplazarte</div>
 </div>
@@ -400,15 +408,13 @@
     let groupMatches = {};
     let knockoutMatches = [];
 
-    // Cargar o inicializar datos
     function loadFromStorage() {
-        const stored = localStorage.getItem('Mundial2026_v2');
+        const stored = localStorage.getItem('Mundial2026_v3');
         if(stored) {
             const data = JSON.parse(stored);
             groupMatches = data.groupMatches;
             knockoutMatches = data.knockoutMatches;
             recalcularTodasStats();
-            // Asegurar que el bracket tenga los equipos actualizados según clasificación
             actualizarBracketCompleto();
         } else {
             initGroups();
@@ -417,19 +423,18 @@
         }
         renderGroupsUI();
         renderKnockoutUI();
-        drawCanvas();
+        drawCanvasResponsive();
     }
 
     function saveToStorage() {
         const toSave = {
             groupMatches: groupMatches,
             knockoutMatches: knockoutMatches,
-            version: '2.0'
+            version: '3.0'
         };
-        localStorage.setItem('Mundial2026_v2', JSON.stringify(toSave));
+        localStorage.setItem('Mundial2026_v3', JSON.stringify(toSave));
     }
 
-    // Inicializar grupos vacíos
     function initGroups() {
         gruposFull.forEach(g => {
             g.equipos.forEach(equipo => {
@@ -516,7 +521,6 @@
         return final.slice(0,32);
     }
 
-    // Inicializar eliminatorias (primera ronda con los clasificados actuales)
     function initKnockout(equipos) {
         let r32 = [];
         for(let i=0;i<16;i++) {
@@ -531,30 +535,24 @@
             [{id:0, equipoA:null, equipoB:null, gA:null, gB:null, ganador:null}]];
     }
 
-    // Actualizar todo el bracket (resultados y propagación)
     function actualizarBracketCompleto() {
-        // Primero asegurar que la primera ronda tenga los equipos clasificados actuales
         const clasificadosActuales = obtenerClasificados();
         for(let i=0; i<16; i++) {
             if(knockoutMatches[0] && knockoutMatches[0][i]) {
                 const nuevoA = clasificadosActuales[i*2]?.nombre || '???';
                 const nuevoB = clasificadosActuales[i*2+1]?.nombre || '???';
-                // Solo actualizar si el equipo no tiene resultado ya (para no borrar resultados)
                 if(knockoutMatches[0][i].gA === null && knockoutMatches[0][i].gB === null) {
                     knockoutMatches[0][i].equipoA = nuevoA;
                     knockoutMatches[0][i].equipoB = nuevoB;
                 } else {
-                    // Si ya hay resultado, mantener los nombres pero actualizar si cambiaron por reclasificación
                     knockoutMatches[0][i].equipoA = nuevoA;
                     knockoutMatches[0][i].equipoB = nuevoB;
                 }
             }
         }
-        // Propagar ganadores
         for(let r=0; r<knockoutMatches.length-1; r++) {
             const act = knockoutMatches[r];
             const sig = knockoutMatches[r+1];
-            // Limpiar la siguiente ronda (excepto si ya tienen resultados guardados)
             for(let j=0; j<sig.length; j++) {
                 if(sig[j].gA === null && sig[j].gB === null) {
                     sig[j].equipoA = null;
@@ -577,11 +575,10 @@
             }
         }
         renderKnockoutUI();
-        drawCanvas();
+        drawCanvasResponsive();
         saveToStorage();
     }
 
-    // Render de la pestaña "SEGUNDA FASE"
     function renderKnockoutUI() {
         const cont = document.getElementById('knockoutStages');
         if(!cont) return;
@@ -624,7 +621,6 @@
         });
     }
 
-    // Render grupos
     function renderGroupsUI() {
         const container = document.getElementById('groupsContainer');
         container.innerHTML = '';
@@ -676,7 +672,7 @@
                 groupMatches[gid][idx].g2 = g2;
                 recalcularGrupo(gid);
                 renderGroupsUI();
-                actualizarBracketCompleto(); // Esto actualiza las eliminatorias con los nuevos clasificados
+                actualizarBracketCompleto();
             });
         });
         document.querySelectorAll('.reset-btn').forEach(btn => {
@@ -691,68 +687,84 @@
     }
 
     // --------------------------------------------------------------
-    // DIBUJO DEL CANVAS (tamaño fijo, sin zoom manual)
+    // CANVAS RESPONSIVO (se ajusta al ancho del contenedor)
     // --------------------------------------------------------------
-    function drawCanvas() {
+    function drawCanvasResponsive() {
         const canvas = document.getElementById('bracketCanvas');
+        const wrapper = document.getElementById('canvasWrapper');
+        if(!canvas || !wrapper) return;
+        
+        // Obtener ancho real del contenedor (sin scrollbars)
+        const containerWidth = wrapper.clientWidth;
+        // Definir una altura proporcional (relación 2:3 para que sea más alto que ancho, adecuado para bracket vertical)
+        const containerHeight = containerWidth * 0.9; // 0.9 para que sea ligeramente más alto
+        canvas.width = containerWidth;
+        canvas.height = containerHeight;
+        
         const ctx = canvas.getContext('2d');
         const w = canvas.width, h = canvas.height;
         ctx.clearRect(0,0,w,h);
         ctx.fillStyle = '#3cae5a';
         ctx.fillRect(0,0,w,h);
-        // Líneas de campo
+        
+        // Dibujar fondo de campo
         ctx.beginPath();
         ctx.strokeStyle = '#ffffbb';
-        ctx.lineWidth = 2;
-        for(let i=0;i<30;i++) {
-            ctx.beginPath(); ctx.moveTo(0, i*60); ctx.lineTo(w, i*60); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(i*100, 0); ctx.lineTo(i*100, h); ctx.stroke();
+        ctx.lineWidth = 1;
+        for(let i=0; i<w; i+=40) {
+            ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(w,i); ctx.stroke();
         }
-        ctx.beginPath(); ctx.arc(w/2, h/2, 80, 0, 2*Math.PI);
-        ctx.strokeStyle = '#ffffcc';
+        ctx.beginPath();
+        ctx.arc(w/2, h/2, Math.min(w,h)*0.1, 0, 2*Math.PI);
         ctx.stroke();
-        ctx.font = 'bold 48px "Segoe UI"';
+        
+        ctx.font = `bold ${Math.min(w,h)*0.05}px "Segoe UI"`;
         ctx.fillStyle = '#ffdd77';
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 5;
         ctx.shadowColor = 'gold';
-        ctx.fillText('🏆', w/2-35, h/2-30);
-        ctx.font = 'bold 22px monospace';
+        ctx.fillText('🏆', w/2 - w*0.05, h/2 - h*0.1);
+        ctx.font = `bold ${Math.min(w,h)*0.03}px monospace`;
         ctx.fillStyle = '#ffeeaa';
-        ctx.fillText('FINAL MÉXICO 2026', w/2-130, h/2+50);
+        ctx.fillText('FINAL MÉXICO 2026', w/2 - w*0.2, h/2 + h*0.05);
         ctx.shadowBlur = 0;
-
-        const centerX = w/2, centerY = h/2;
-        const leftX = [120, 320, 520, 720, centerX];
-        const rightX = [w-120, w-320, w-520, w-720, centerX];
-
-        function drawMatch(x,y,eqA,eqB,gA,gB,ganador) {
-            const boxW = 200, boxH = 60;
+        
+        // Posiciones relativas
+        const margin = { left: w*0.07, right: w*0.07, top: h*0.1, bottom: h*0.05 };
+        const stepX = (w - margin.left - margin.right) / 5; // 5 columnas
+        const leftX = [margin.left, margin.left+stepX, margin.left+stepX*2, margin.left+stepX*3, w/2];
+        const rightX = [w-margin.left, w-margin.left-stepX, w-margin.left-stepX*2, w-margin.left-stepX*3, w/2];
+        
+        function getY(r, idx, total) {
+            const availableHeight = h - margin.top - margin.bottom;
+            const stepY = availableHeight / (total+1);
+            return margin.top + stepY * (idx+1);
+        }
+        
+        function drawMatch(x,y, eqA,eqB,gA,gB,ganador) {
+            const boxW = stepX * 0.8;
+            const boxH = Math.min(50, h*0.07);
             if(x-boxW/2 < 0) return;
             ctx.fillStyle = '#fef0cf';
             ctx.fillRect(x-boxW/2, y-boxH/2, boxW, boxH);
             ctx.strokeStyle = '#ff9900';
             ctx.strokeRect(x-boxW/2, y-boxH/2, boxW, boxH);
             ctx.fillStyle = '#2c5a2a';
-            ctx.font = 'bold 14px monospace';
-            let a = eqA ? (eqA.length>15?eqA.slice(0,12)+'…':eqA) : '???';
-            let b = eqB ? (eqB.length>15?eqB.slice(0,12)+'…':eqB) : '???';
-            ctx.fillText(a, x-boxW/2+8, y-8);
-            ctx.fillText(b, x-boxW/2+8, y+18);
+            ctx.font = `bold ${Math.min(12, boxH*0.4)}px monospace`;
+            let a = eqA ? (eqA.length>12?eqA.slice(0,10)+'…':eqA) : '???';
+            let b = eqB ? (eqB.length>12?eqB.slice(0,10)+'…':eqB) : '???';
+            ctx.fillText(a, x-boxW/2+5, y-5);
+            ctx.fillText(b, x-boxW/2+5, y+12);
             if(gA!==null && gB!==null) {
                 ctx.fillStyle = '#d45a1a';
-                ctx.font = 'bold 14px monospace';
-                ctx.fillText(`${gA} - ${gB}`, x+boxW/2-50, y+5);
+                ctx.fillText(`${gA} - ${gB}`, x+boxW/2-35, y+3);
             }
             if(ganador && ganador!=='Empate') {
                 ctx.fillStyle = '#2e8b57';
-                ctx.font = 'bold 12px monospace';
-                ctx.fillText('✓', x+boxW/2-20, y-12);
+                ctx.fillText('✓', x+boxW/2-12, y-8);
             }
         }
-        function getY(r,m,total) {
-            const startY = centerY - (total-1)*45;
-            return startY + m * 90;
-        }
+        
         for(let r=0; r<=4; r++) {
             const matches = knockoutMatches[r];
             if(!matches) continue;
@@ -763,16 +775,18 @@
                 if(left) {
                     const y = getY(r,i,leftCnt);
                     const x = leftX[r];
-                    drawMatch(x,y,left.equipoA,left.equipoB,left.gA,left.gB,left.ganador);
+                    drawMatch(x,y, left.equipoA, left.equipoB, left.gA, left.gB, left.ganador);
                     if(r<4) {
                         const nxtIdx = Math.floor(i/2);
                         const nxt = knockoutMatches[r+1];
                         if(nxt && nxt[nxtIdx]) {
                             const xn = leftX[r+1];
-                            const yn = getY(r+1,nxtIdx,leftCnt/2);
+                            const yn = getY(r+1,nxtIdx, leftCnt/2);
                             ctx.beginPath();
-                            ctx.moveTo(x+100,y); ctx.lineTo(xn-100,y);
-                            ctx.lineTo(xn-100,yn); ctx.lineTo(xn-30,yn);
+                            ctx.moveTo(x+stepX*0.35, y);
+                            ctx.lineTo(xn-stepX*0.35, y);
+                            ctx.lineTo(xn-stepX*0.35, yn);
+                            ctx.lineTo(xn-stepX*0.1, yn);
                             ctx.stroke();
                         }
                     }
@@ -782,15 +796,17 @@
                 if(right && r<4) {
                     const y = getY(r,i,leftCnt);
                     const x = rightX[r];
-                    drawMatch(x,y,right.equipoA,right.equipoB,right.gA,right.gB,right.ganador);
+                    drawMatch(x,y, right.equipoA, right.equipoB, right.gA, right.gB, right.ganador);
                     const nxtIdx = Math.floor(i/2);
                     const nxt = knockoutMatches[r+1];
                     if(nxt && nxt[nxtIdx]) {
                         const xn = rightX[r+1];
-                        const yn = getY(r+1,nxtIdx,leftCnt/2);
+                        const yn = getY(r+1,nxtIdx, leftCnt/2);
                         ctx.beginPath();
-                        ctx.moveTo(x-100,y); ctx.lineTo(xn+100,y);
-                        ctx.lineTo(xn+100,yn); ctx.lineTo(xn+30,yn);
+                        ctx.moveTo(x-stepX*0.35, y);
+                        ctx.lineTo(xn+stepX*0.35, y);
+                        ctx.lineTo(xn+stepX*0.35, yn);
+                        ctx.lineTo(xn+stepX*0.1, yn);
                         ctx.stroke();
                     }
                 }
@@ -798,30 +814,38 @@
         }
         const finalMatch = knockoutMatches[4]?.[0];
         if(finalMatch) {
-            drawMatch(centerX, centerY-60, finalMatch.equipoA, finalMatch.equipoB, finalMatch.gA, finalMatch.gB, finalMatch.ganador);
+            drawMatch(w/2, getY(4,0,1), finalMatch.equipoA, finalMatch.equipoB, finalMatch.gA, finalMatch.gB, finalMatch.ganador);
             const semis = knockoutMatches[3];
             if(semis && semis[0]) {
                 const yL = getY(3,0,1);
-                ctx.beginPath(); ctx.moveTo(leftX[3]+100, yL); ctx.lineTo(centerX-100, yL);
-                ctx.lineTo(centerX-100, centerY-60); ctx.lineTo(centerX-40, centerY-60); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(leftX[3]+stepX*0.35, yL);
+                ctx.lineTo(w/2-stepX*0.35, yL);
+                ctx.lineTo(w/2-stepX*0.35, getY(4,0,1));
+                ctx.lineTo(w/2-stepX*0.1, getY(4,0,1));
+                ctx.stroke();
             }
             if(semis && semis[1]) {
                 const yR = getY(3,1,1);
-                ctx.beginPath(); ctx.moveTo(rightX[3]-100, yR); ctx.lineTo(centerX+100, yR);
-                ctx.lineTo(centerX+100, centerY-60); ctx.lineTo(centerX+40, centerY-60); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(rightX[3]-stepX*0.35, yR);
+                ctx.lineTo(w/2+stepX*0.35, yR);
+                ctx.lineTo(w/2+stepX*0.35, getY(4,0,1));
+                ctx.lineTo(w/2+stepX*0.1, getY(4,0,1));
+                ctx.stroke();
             }
         }
+        
+        // Etiquetas de rondas
         ctx.fillStyle = '#ffdd77';
-        ctx.font = 'bold 16px monospace';
-        ctx.fillText('DIECISEISAVOS', 40, 50);
-        ctx.fillText('OCTAVOS', 260, 50);
-        ctx.fillText('CUARTOS', 470, 50);
-        ctx.fillText('SEMIS', 670, 50);
-        ctx.fillText('FINAL', centerX-50, 100);
-        ctx.fillText('DIECISEISAVOS', w-180, 50);
-        ctx.fillText('OCTAVOS', w-140, 50);
-        ctx.fillText('CUARTOS', w-120, 50);
-        ctx.fillText('SEMIS', w-100, 50);
+        ctx.font = `bold ${Math.min(14, w*0.02)}px monospace`;
+        ctx.fillText('16avos', margin.left-10, margin.top-5);
+        ctx.fillText('Octavos', leftX[1]-10, margin.top-5);
+        ctx.fillText('Cuartos', leftX[2]-10, margin.top-5);
+        ctx.fillText('Semis', leftX[3]-10, margin.top-5);
+        ctx.fillText('Final', w/2-25, margin.top-5);
+        ctx.fillText('16avos', rightX[0]-40, margin.top-5);
+        ctx.fillText('Octavos', rightX[1]-40, margin.top-5);
+        ctx.fillText('Cuartos', rightX[2]-40, margin.top-5);
+        ctx.fillText('Semis', rightX[3]-40, margin.top-5);
     }
 
     // --------------------------------------------------------------
@@ -838,9 +862,14 @@
                 panes.forEach(p => p.classList.remove('active-pane'));
                 document.getElementById(tabId).classList.add('active-pane');
                 if(tabId === 'eliminatorias') {
-                    setTimeout(() => drawCanvas(), 50);
+                    setTimeout(() => drawCanvasResponsive(), 50);
                 }
             });
+        });
+        window.addEventListener('resize', () => {
+            if(document.getElementById('eliminatorias').classList.contains('active-pane')) {
+                drawCanvasResponsive();
+            }
         });
     }
 
@@ -848,7 +877,7 @@
     setupTabs();
     setTimeout(() => {
         if(document.getElementById('eliminatorias').classList.contains('active-pane')) {
-            drawCanvas();
+            drawCanvasResponsive();
         }
     }, 200);
 </script>
