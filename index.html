@@ -17,15 +17,23 @@
             min-height: 100vh;
             padding: 12px;
             color: #1e2a1f;
+            padding-top: 0;
         }
 
-        /* Tabs - botones más flexibles */
+        /* Pestañas fijas (sticky) */
         .tabs {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(27, 67, 32, 0.95);
+            backdrop-filter: blur(8px);
             display: flex;
             gap: 8px;
             margin-bottom: 20px;
             flex-wrap: wrap;
             justify-content: center;
+            padding: 10px 0;
+            border-radius: 0 0 20px 20px;
         }
         .tab-btn {
             background: #ffdd99;
@@ -47,7 +55,6 @@
             color: white;
             border-color: white;
         }
-        /* En móvil muy pequeño, reducir padding */
         @media (max-width: 480px) {
             .tab-btn {
                 padding: 6px 10px;
@@ -179,6 +186,7 @@
             display: flex;
             flex-direction: column;
             gap: 24px;
+            padding-bottom: 20px;
         }
         .stage {
             background: rgba(255,248,205,0.95);
@@ -221,7 +229,7 @@
             margin-top: 6px;
         }
 
-        /* Canvas responsivo - todo el bracket se ajusta al ancho */
+        /* Canvas responsivo - mejorado para scroll */
         .canvas-wrapper {
             background: #2e7d32;
             border-radius: 24px;
@@ -235,8 +243,10 @@
         canvas {
             display: block;
             background: radial-gradient(circle, #3cae5a, #1a5a2a);
-            width: 100%;
+            width: auto;
             height: auto;
+            min-width: 100%;
+            min-height: 100%;
         }
         .info-badge {
             text-align: center;
@@ -288,116 +298,116 @@
 
 <script>
     // --------------------------------------------------------------
-    // DATOS COMPLETOS (grupos reales con fechas y estadios)
+    // DATOS COMPLETOS (con horarios corregidos: se resta 1 hora)
     // --------------------------------------------------------------
     const gruposFull = [
         { id:'A', equipos:['México','Sudáfrica','República de Corea','República Checa'], flags:['mx','za','kr','cz'],
           partidos: [
-              { eq1:'México', eq2:'Sudáfrica', fecha:'Jue 11/06', hora:'15:00', estadio:'Cd. México' },
-              { eq1:'República de Corea', eq2:'República Checa', fecha:'Jue 11/06', hora:'22:00', estadio:'Guadalajara' },
-              { eq1:'República Checa', eq2:'Sudáfrica', fecha:'Jue 18/06', hora:'12:00', estadio:'Atlanta' },
-              { eq1:'México', eq2:'República de Corea', fecha:'Jue 18/06', hora:'21:00', estadio:'Guadalajara' },
-              { eq1:'República Checa', eq2:'México', fecha:'Mié 24/06', hora:'21:00', estadio:'Cd. México' },
-              { eq1:'Sudáfrica', eq2:'República de Corea', fecha:'Mié 24/06', hora:'21:00', estadio:'Monterrey' }
+              { eq1:'México', eq2:'Sudáfrica', fecha:'Jue 11/06', hora:'14:00', estadio:'Cd. México' },
+              { eq1:'República de Corea', eq2:'República Checa', fecha:'Jue 11/06', hora:'21:00', estadio:'Guadalajara' },
+              { eq1:'República Checa', eq2:'Sudáfrica', fecha:'Jue 18/06', hora:'11:00', estadio:'Atlanta' },
+              { eq1:'México', eq2:'República de Corea', fecha:'Jue 18/06', hora:'20:00', estadio:'Guadalajara' },
+              { eq1:'República Checa', eq2:'México', fecha:'Mié 24/06', hora:'20:00', estadio:'Cd. México' },
+              { eq1:'Sudáfrica', eq2:'República de Corea', fecha:'Mié 24/06', hora:'20:00', estadio:'Monterrey' }
           ] },
         { id:'B', equipos:['Canadá','Bosnia y Herzegovina','Catar','Suiza'], flags:['ca','ba','qa','ch'],
           partidos: [
-              { eq1:'Canadá', eq2:'Bosnia y Herzegovina', fecha:'Vie 12/06', hora:'15:00', estadio:'Toronto' },
-              { eq1:'Catar', eq2:'Suiza', fecha:'Sáb 13/06', hora:'15:00', estadio:'San Francisco' },
-              { eq1:'Suiza', eq2:'Bosnia y Herzegovina', fecha:'Jue 18/06', hora:'15:00', estadio:'Los Ángeles' },
-              { eq1:'Canadá', eq2:'Catar', fecha:'Jue 18/06', hora:'18:00', estadio:'Vancouver' },
-              { eq1:'Suiza', eq2:'Canadá', fecha:'Mié 24/06', hora:'15:00', estadio:'Vancouver' },
-              { eq1:'Bosnia y Herzegovina', eq2:'Catar', fecha:'Mié 24/06', hora:'15:00', estadio:'Seattle' }
+              { eq1:'Canadá', eq2:'Bosnia y Herzegovina', fecha:'Vie 12/06', hora:'14:00', estadio:'Toronto' },
+              { eq1:'Catar', eq2:'Suiza', fecha:'Sáb 13/06', hora:'14:00', estadio:'San Francisco' },
+              { eq1:'Suiza', eq2:'Bosnia y Herzegovina', fecha:'Jue 18/06', hora:'14:00', estadio:'Los Ángeles' },
+              { eq1:'Canadá', eq2:'Catar', fecha:'Jue 18/06', hora:'17:00', estadio:'Vancouver' },
+              { eq1:'Suiza', eq2:'Canadá', fecha:'Mié 24/06', hora:'14:00', estadio:'Vancouver' },
+              { eq1:'Bosnia y Herzegovina', eq2:'Catar', fecha:'Mié 24/06', hora:'14:00', estadio:'Seattle' }
           ] },
         { id:'C', equipos:['Brasil','Marruecos','Haití','Escocia'], flags:['br','ma','ht','gb-sct'],
           partidos: [
-              { eq1:'Brasil', eq2:'Marruecos', fecha:'Sáb 13/06', hora:'18:00', estadio:'Nueva York' },
-              { eq1:'Haití', eq2:'Escocia', fecha:'Sáb 13/06', hora:'21:00', estadio:'Boston' },
-              { eq1:'Escocia', eq2:'Marruecos', fecha:'Vie 19/06', hora:'18:00', estadio:'Boston' },
-              { eq1:'Brasil', eq2:'Haití', fecha:'Vie 19/06', hora:'21:00', estadio:'Philadelphia' },
-              { eq1:'Brasil', eq2:'Escocia', fecha:'Mié 24/06', hora:'18:00', estadio:'Miami' },
-              { eq1:'Marruecos', eq2:'Haití', fecha:'Mié 24/06', hora:'18:00', estadio:'Atlanta' }
+              { eq1:'Brasil', eq2:'Marruecos', fecha:'Sáb 13/06', hora:'17:00', estadio:'Nueva York' },
+              { eq1:'Haití', eq2:'Escocia', fecha:'Sáb 13/06', hora:'20:00', estadio:'Boston' },
+              { eq1:'Escocia', eq2:'Marruecos', fecha:'Vie 19/06', hora:'17:00', estadio:'Boston' },
+              { eq1:'Brasil', eq2:'Haití', fecha:'Vie 19/06', hora:'20:00', estadio:'Philadelphia' },
+              { eq1:'Brasil', eq2:'Escocia', fecha:'Mié 24/06', hora:'17:00', estadio:'Miami' },
+              { eq1:'Marruecos', eq2:'Haití', fecha:'Mié 24/06', hora:'17:00', estadio:'Atlanta' }
           ] },
         { id:'D', equipos:['Estados Unidos','Paraguay','Australia','Turquía'], flags:['us','py','au','tr'],
           partidos: [
-              { eq1:'Estados Unidos', eq2:'Paraguay', fecha:'Vie 12/06', hora:'21:00', estadio:'Los Ángeles' },
-              { eq1:'Australia', eq2:'Turquía', fecha:'Sáb 13/06', hora:'00:00', estadio:'Vancouver' },
-              { eq1:'Estados Unidos', eq2:'Australia', fecha:'Vie 19/06', hora:'15:00', estadio:'Seattle' },
-              { eq1:'Turquía', eq2:'Paraguay', fecha:'Sáb 20/06', hora:'00:00', estadio:'San Francisco' },
-              { eq1:'Turquía', eq2:'Estados Unidos', fecha:'Jue 25/06', hora:'22:00', estadio:'Los Ángeles' },
-              { eq1:'Paraguay', eq2:'Australia', fecha:'Jue 25/06', hora:'22:00', estadio:'San Francisco' }
+              { eq1:'Estados Unidos', eq2:'Paraguay', fecha:'Vie 12/06', hora:'20:00', estadio:'Los Ángeles' },
+              { eq1:'Australia', eq2:'Turquía', fecha:'Sáb 13/06', hora:'23:00', estadio:'Vancouver' },
+              { eq1:'Estados Unidos', eq2:'Australia', fecha:'Vie 19/06', hora:'14:00', estadio:'Seattle' },
+              { eq1:'Turquía', eq2:'Paraguay', fecha:'Sáb 20/06', hora:'23:00', estadio:'San Francisco' },
+              { eq1:'Turquía', eq2:'Estados Unidos', fecha:'Jue 25/06', hora:'21:00', estadio:'Los Ángeles' },
+              { eq1:'Paraguay', eq2:'Australia', fecha:'Jue 25/06', hora:'21:00', estadio:'San Francisco' }
           ] },
         { id:'E', equipos:['Alemania','Curazao','Costa de Marfil','Ecuador'], flags:['de','cw','ci','ec'],
           partidos: [
-              { eq1:'Alemania', eq2:'Curazao', fecha:'Dom 14/06', hora:'13:00', estadio:'Houston' },
-              { eq1:'Costa de Marfil', eq2:'Ecuador', fecha:'Dom 14/06', hora:'19:00', estadio:'Philadelphia' },
-              { eq1:'Alemania', eq2:'Costa de Marfil', fecha:'Sáb 20/06', hora:'16:00', estadio:'Toronto' },
-              { eq1:'Ecuador', eq2:'Curazao', fecha:'Sáb 20/06', hora:'22:00', estadio:'Kansas City' },
-              { eq1:'Curazao', eq2:'Costa de Marfil', fecha:'Jue 25/06', hora:'16:00', estadio:'Philadelphia' },
-              { eq1:'Ecuador', eq2:'Alemania', fecha:'Jue 25/06', hora:'16:00', estadio:'New York' }
+              { eq1:'Alemania', eq2:'Curazao', fecha:'Dom 14/06', hora:'12:00', estadio:'Houston' },
+              { eq1:'Costa de Marfil', eq2:'Ecuador', fecha:'Dom 14/06', hora:'18:00', estadio:'Philadelphia' },
+              { eq1:'Alemania', eq2:'Costa de Marfil', fecha:'Sáb 20/06', hora:'15:00', estadio:'Toronto' },
+              { eq1:'Ecuador', eq2:'Curazao', fecha:'Sáb 20/06', hora:'21:00', estadio:'Kansas City' },
+              { eq1:'Curazao', eq2:'Costa de Marfil', fecha:'Jue 25/06', hora:'15:00', estadio:'Philadelphia' },
+              { eq1:'Ecuador', eq2:'Alemania', fecha:'Jue 25/06', hora:'15:00', estadio:'New York' }
           ] },
         { id:'F', equipos:['Países Bajos','Japón','Suecia','Túnez'], flags:['nl','jp','se','tn'],
           partidos: [
-              { eq1:'Países Bajos', eq2:'Japón', fecha:'Dom 14/06', hora:'16:00', estadio:'Dallas' },
-              { eq1:'Suecia', eq2:'Túnez', fecha:'Dom 14/06', hora:'22:00', estadio:'Monterrey' },
-              { eq1:'Países Bajos', eq2:'Suecia', fecha:'Sáb 20/06', hora:'13:00', estadio:'Houston' },
-              { eq1:'Túnez', eq2:'Japón', fecha:'Dom 21/06', hora:'00:00', estadio:'Monterrey' },
-              { eq1:'Japón', eq2:'Suecia', fecha:'Jue 25/06', hora:'19:00', estadio:'Dallas' },
-              { eq1:'Túnez', eq2:'Países Bajos', fecha:'Jue 25/06', hora:'19:00', estadio:'Kansas City' }
+              { eq1:'Países Bajos', eq2:'Japón', fecha:'Dom 14/06', hora:'15:00', estadio:'Dallas' },
+              { eq1:'Suecia', eq2:'Túnez', fecha:'Dom 14/06', hora:'21:00', estadio:'Monterrey' },
+              { eq1:'Países Bajos', eq2:'Suecia', fecha:'Sáb 20/06', hora:'12:00', estadio:'Houston' },
+              { eq1:'Túnez', eq2:'Japón', fecha:'Dom 21/06', hora:'23:00', estadio:'Monterrey' },
+              { eq1:'Japón', eq2:'Suecia', fecha:'Jue 25/06', hora:'18:00', estadio:'Dallas' },
+              { eq1:'Túnez', eq2:'Países Bajos', fecha:'Jue 25/06', hora:'18:00', estadio:'Kansas City' }
           ] },
         { id:'G', equipos:['Bélgica','Egipto','RI de Irán','Nueva Zelanda'], flags:['be','eg','ir','nz'],
           partidos: [
-              { eq1:'Bélgica', eq2:'Egipto', fecha:'Lun 15/06', hora:'15:00', estadio:'Seattle' },
-              { eq1:'Irán', eq2:'Nueva Zelanda', fecha:'Lun 15/06', hora:'21:00', estadio:'Los Ángeles' },
-              { eq1:'Bélgica', eq2:'Irán', fecha:'Dom 21/06', hora:'15:00', estadio:'Los Ángeles' },
-              { eq1:'Nueva Zelanda', eq2:'Egipto', fecha:'Dom 21/06', hora:'21:00', estadio:'Vancouver' },
-              { eq1:'Egipto', eq2:'Irán', fecha:'Vie 26/06', hora:'23:00', estadio:'Seattle' },
-              { eq1:'Nueva Zelanda', eq2:'Bélgica', fecha:'Vie 26/06', hora:'23:00', estadio:'Vancouver' }
+              { eq1:'Bélgica', eq2:'Egipto', fecha:'Lun 15/06', hora:'14:00', estadio:'Seattle' },
+              { eq1:'Irán', eq2:'Nueva Zelanda', fecha:'Lun 15/06', hora:'20:00', estadio:'Los Ángeles' },
+              { eq1:'Bélgica', eq2:'Irán', fecha:'Dom 21/06', hora:'14:00', estadio:'Los Ángeles' },
+              { eq1:'Nueva Zelanda', eq2:'Egipto', fecha:'Dom 21/06', hora:'20:00', estadio:'Vancouver' },
+              { eq1:'Egipto', eq2:'Irán', fecha:'Vie 26/06', hora:'22:00', estadio:'Seattle' },
+              { eq1:'Nueva Zelanda', eq2:'Bélgica', fecha:'Vie 26/06', hora:'22:00', estadio:'Vancouver' }
           ] },
         { id:'H', equipos:['España','Cabo Verde','Arabia Saudí','Uruguay'], flags:['es','cv','sa','uy'],
           partidos: [
-              { eq1:'España', eq2:'Cabo Verde', fecha:'Lun 15/06', hora:'12:00', estadio:'Atlanta' },
-              { eq1:'Arabia Saudí', eq2:'Uruguay', fecha:'Lun 15/06', hora:'18:00', estadio:'Miami' },
-              { eq1:'España', eq2:'Arabia Saudí', fecha:'Dom 21/06', hora:'12:00', estadio:'Atlanta' },
-              { eq1:'Uruguay', eq2:'Cabo Verde', fecha:'Dom 21/06', hora:'18:00', estadio:'Miami' },
-              { eq1:'Cabo Verde', eq2:'Arabia Saudí', fecha:'Vie 26/06', hora:'20:00', estadio:'Houston' },
-              { eq1:'Uruguay', eq2:'España', fecha:'Vie 26/06', hora:'20:00', estadio:'Guadalajara' }
+              { eq1:'España', eq2:'Cabo Verde', fecha:'Lun 15/06', hora:'11:00', estadio:'Atlanta' },
+              { eq1:'Arabia Saudí', eq2:'Uruguay', fecha:'Lun 15/06', hora:'17:00', estadio:'Miami' },
+              { eq1:'España', eq2:'Arabia Saudí', fecha:'Dom 21/06', hora:'11:00', estadio:'Atlanta' },
+              { eq1:'Uruguay', eq2:'Cabo Verde', fecha:'Dom 21/06', hora:'17:00', estadio:'Miami' },
+              { eq1:'Cabo Verde', eq2:'Arabia Saudí', fecha:'Vie 26/06', hora:'19:00', estadio:'Houston' },
+              { eq1:'Uruguay', eq2:'España', fecha:'Vie 26/06', hora:'19:00', estadio:'Guadalajara' }
           ] },
         { id:'I', equipos:['Francia','Senegal','Irak','Noruega'], flags:['fr','sn','iq','no'],
           partidos: [
-              { eq1:'Francia', eq2:'Senegal', fecha:'Mar 16/06', hora:'15:00', estadio:'New York' },
-              { eq1:'Irak', eq2:'Noruega', fecha:'Mar 16/06', hora:'18:00', estadio:'Boston' },
-              { eq1:'Francia', eq2:'Irak', fecha:'Lun 22/06', hora:'17:00', estadio:'Philadelphia' },
-              { eq1:'Noruega', eq2:'Senegal', fecha:'Lun 22/06', hora:'20:00', estadio:'New York' },
-              { eq1:'Noruega', eq2:'Francia', fecha:'Vie 26/06', hora:'15:00', estadio:'Boston' },
-              { eq1:'Senegal', eq2:'Irak', fecha:'Vie 26/06', hora:'15:00', estadio:'Toronto' }
+              { eq1:'Francia', eq2:'Senegal', fecha:'Mar 16/06', hora:'14:00', estadio:'New York' },
+              { eq1:'Irak', eq2:'Noruega', fecha:'Mar 16/06', hora:'17:00', estadio:'Boston' },
+              { eq1:'Francia', eq2:'Irak', fecha:'Lun 22/06', hora:'16:00', estadio:'Philadelphia' },
+              { eq1:'Noruega', eq2:'Senegal', fecha:'Lun 22/06', hora:'19:00', estadio:'New York' },
+              { eq1:'Noruega', eq2:'Francia', fecha:'Vie 26/06', hora:'14:00', estadio:'Boston' },
+              { eq1:'Senegal', eq2:'Irak', fecha:'Vie 26/06', hora:'14:00', estadio:'Toronto' }
           ] },
         { id:'J', equipos:['Argentina','Argelia','Austria','Jordania'], flags:['ar','dz','at','jo'],
           partidos: [
-              { eq1:'Argentina', eq2:'Argelia', fecha:'Mar 16/06', hora:'21:00', estadio:'Kansas City' },
-              { eq1:'Austria', eq2:'Jordania', fecha:'Mié 17/06', hora:'00:00', estadio:'San Francisco' },
-              { eq1:'Argentina', eq2:'Austria', fecha:'Lun 22/06', hora:'13:00', estadio:'Dallas' },
-              { eq1:'Jordania', eq2:'Argelia', fecha:'Lun 22/06', hora:'23:00', estadio:'San Francisco' },
-              { eq1:'Argelia', eq2:'Austria', fecha:'Sáb 27/06', hora:'22:00', estadio:'Kansas City' },
-              { eq1:'Jordania', eq2:'Argentina', fecha:'Sáb 27/06', hora:'22:00', estadio:'Dallas' }
+              { eq1:'Argentina', eq2:'Argelia', fecha:'Mar 16/06', hora:'20:00', estadio:'Kansas City' },
+              { eq1:'Austria', eq2:'Jordania', fecha:'Mié 17/06', hora:'23:00', estadio:'San Francisco' },
+              { eq1:'Argentina', eq2:'Austria', fecha:'Lun 22/06', hora:'12:00', estadio:'Dallas' },
+              { eq1:'Jordania', eq2:'Argelia', fecha:'Lun 22/06', hora:'22:00', estadio:'San Francisco' },
+              { eq1:'Argelia', eq2:'Austria', fecha:'Sáb 27/06', hora:'21:00', estadio:'Kansas City' },
+              { eq1:'Jordania', eq2:'Argentina', fecha:'Sáb 27/06', hora:'21:00', estadio:'Dallas' }
           ] },
         { id:'K', equipos:['Portugal','RD de Congo','Uzbekistán','Colombia'], flags:['pt','cd','uz','co'],
           partidos: [
-              { eq1:'Portugal', eq2:'RD de Congo', fecha:'Mié 17/06', hora:'13:00', estadio:'Houston' },
-              { eq1:'Uzbekistán', eq2:'Colombia', fecha:'Mié 17/06', hora:'22:00', estadio:'Cd. México' },
-              { eq1:'Portugal', eq2:'Uzbekistán', fecha:'Mar 23/06', hora:'13:00', estadio:'Houston' },
-              { eq1:'Colombia', eq2:'RD de Congo', fecha:'Mar 23/06', hora:'22:00', estadio:'Guadalajara' },
-              { eq1:'Colombia', eq2:'Portugal', fecha:'Sáb 27/06', hora:'19:30', estadio:'Miami' },
-              { eq1:'RD de Congo', eq2:'Uzbekistán', fecha:'Sáb 27/06', hora:'19:30', estadio:'Atlanta' }
+              { eq1:'Portugal', eq2:'RD de Congo', fecha:'Mié 17/06', hora:'12:00', estadio:'Houston' },
+              { eq1:'Uzbekistán', eq2:'Colombia', fecha:'Mié 17/06', hora:'21:00', estadio:'Cd. México' },
+              { eq1:'Portugal', eq2:'Uzbekistán', fecha:'Mar 23/06', hora:'12:00', estadio:'Houston' },
+              { eq1:'Colombia', eq2:'RD de Congo', fecha:'Mar 23/06', hora:'21:00', estadio:'Guadalajara' },
+              { eq1:'Colombia', eq2:'Portugal', fecha:'Sáb 27/06', hora:'18:30', estadio:'Miami' },
+              { eq1:'RD de Congo', eq2:'Uzbekistán', fecha:'Sáb 27/06', hora:'18:30', estadio:'Atlanta' }
           ] },
         { id:'L', equipos:['Inglaterra','Croacia','Ghana','Panamá'], flags:['gb-eng','hr','gh','pa'],
           partidos: [
-              { eq1:'Inglaterra', eq2:'Croacia', fecha:'Mié 17/06', hora:'16:00', estadio:'Dallas' },
-              { eq1:'Ghana', eq2:'Panamá', fecha:'Mié 17/06', hora:'19:00', estadio:'Toronto' },
-              { eq1:'Inglaterra', eq2:'Ghana', fecha:'Mar 23/06', hora:'16:00', estadio:'Boston' },
-              { eq1:'Panamá', eq2:'Croacia', fecha:'Mar 23/06', hora:'19:00', estadio:'Toronto' },
-              { eq1:'Panamá', eq2:'Inglaterra', fecha:'Sáb 27/06', hora:'17:00', estadio:'New York' },
-              { eq1:'Croacia', eq2:'Ghana', fecha:'Sáb 27/06', hora:'17:00', estadio:'Philadelphia' }
+              { eq1:'Inglaterra', eq2:'Croacia', fecha:'Mié 17/06', hora:'15:00', estadio:'Dallas' },
+              { eq1:'Ghana', eq2:'Panamá', fecha:'Mié 17/06', hora:'18:00', estadio:'Toronto' },
+              { eq1:'Inglaterra', eq2:'Ghana', fecha:'Mar 23/06', hora:'15:00', estadio:'Boston' },
+              { eq1:'Panamá', eq2:'Croacia', fecha:'Mar 23/06', hora:'18:00', estadio:'Toronto' },
+              { eq1:'Panamá', eq2:'Inglaterra', fecha:'Sáb 27/06', hora:'16:00', estadio:'New York' },
+              { eq1:'Croacia', eq2:'Ghana', fecha:'Sáb 27/06', hora:'16:00', estadio:'Philadelphia' }
           ] }
     ];
 
@@ -409,13 +419,13 @@
     let knockoutMatches = [];
 
     function loadFromStorage() {
-        const stored = localStorage.getItem('Mundial2026_v3');
+        const stored = localStorage.getItem('Mundial2026_v4');
         if(stored) {
             const data = JSON.parse(stored);
             groupMatches = data.groupMatches;
             knockoutMatches = data.knockoutMatches;
             recalcularTodasStats();
-            actualizarBracketCompleto();
+            actualizarBracketCompleto(true); // true = inicialización, no sobreescribir resultados
         } else {
             initGroups();
             const clasif = obtenerClasificados();
@@ -430,9 +440,9 @@
         const toSave = {
             groupMatches: groupMatches,
             knockoutMatches: knockoutMatches,
-            version: '3.0'
+            version: '4.0'
         };
-        localStorage.setItem('Mundial2026_v3', JSON.stringify(toSave));
+        localStorage.setItem('Mundial2026_v4', JSON.stringify(toSave));
     }
 
     function initGroups() {
@@ -535,24 +545,29 @@
             [{id:0, equipoA:null, equipoB:null, gA:null, gB:null, ganador:null}]];
     }
 
-    function actualizarBracketCompleto() {
+    // Función mejorada para actualizar bracket respetando resultados existentes
+    function actualizarBracketCompleto(isInit = false) {
         const clasificadosActuales = obtenerClasificados();
+        // Actualizar solo los partidos de dieciseisavos que no tengan resultado
         for(let i=0; i<16; i++) {
             if(knockoutMatches[0] && knockoutMatches[0][i]) {
                 const nuevoA = clasificadosActuales[i*2]?.nombre || '???';
                 const nuevoB = clasificadosActuales[i*2+1]?.nombre || '???';
+                // Si el partido no tiene goles (aún no se ha jugado), actualizamos los equipos
                 if(knockoutMatches[0][i].gA === null && knockoutMatches[0][i].gB === null) {
                     knockoutMatches[0][i].equipoA = nuevoA;
                     knockoutMatches[0][i].equipoB = nuevoB;
                 } else {
-                    knockoutMatches[0][i].equipoA = nuevoA;
-                    knockoutMatches[0][i].equipoB = nuevoB;
+                    // Si ya tiene resultado, no cambiamos los equipos (el resultado ya definió un ganador)
+                    // Pero si por alguna razón el nombre del equipo que ganó ya no está en clasificados? Eso no debería pasar.
                 }
             }
         }
+        // Propagar ganadores hacia adelante (si los partidos tienen resultados)
         for(let r=0; r<knockoutMatches.length-1; r++) {
             const act = knockoutMatches[r];
             const sig = knockoutMatches[r+1];
+            // Limpiar los equipos de la siguiente ronda solo si no tienen resultado
             for(let j=0; j<sig.length; j++) {
                 if(sig[j].gA === null && sig[j].gB === null) {
                     sig[j].equipoA = null;
@@ -563,6 +578,7 @@
             for(let i=0; i<act.length; i++) {
                 const p = act[i];
                 if(p.gA !== null && p.gB !== null) {
+                    // Determinar ganador
                     p.ganador = p.gA > p.gB ? p.equipoA : (p.gB > p.gA ? p.equipoB : 'Empate');
                     if(p.ganador && p.ganador !== 'Empate') {
                         const idxSig = Math.floor(i/2);
@@ -638,7 +654,7 @@
             ordenados.forEach((eq, idx) => {
                 const rank = idx===0 ? '1' : (idx===1 ? '2' : 'E');
                 const flag = grupo.flags[grupo.equipos.indexOf(eq.nombre)];
-                tbody.innerHTML += `<tr>
+                tbody.innerHTML += `<td>
                     <td><span class="rank-number">${rank}</span></td>
                     <td class="flag-cell"><img src="https://flagcdn.com/w40/${flag}.png"> ${eq.nombre}</td>
                     <td>${eq.pj}</td><td>${eq.pg}</td><td>${eq.pe}</td><td>${eq.pp}</td>
@@ -687,19 +703,23 @@
     }
 
     // --------------------------------------------------------------
-    // CANVAS RESPONSIVO (se ajusta al ancho del contenedor)
+    // CANVAS RESPONSIVO con mejor manejo de zoom/scroll
     // --------------------------------------------------------------
     function drawCanvasResponsive() {
         const canvas = document.getElementById('bracketCanvas');
         const wrapper = document.getElementById('canvasWrapper');
         if(!canvas || !wrapper) return;
         
-        // Obtener ancho real del contenedor (sin scrollbars)
-        const containerWidth = wrapper.clientWidth;
-        // Definir una altura proporcional (relación 2:3 para que sea más alto que ancho, adecuado para bracket vertical)
-        const containerHeight = containerWidth * 0.9; // 0.9 para que sea ligeramente más alto
-        canvas.width = containerWidth;
-        canvas.height = containerHeight;
+        // Tamaño fijo amplio para permitir scroll y zoom nativo
+        // El canvas tendrá un ancho mínimo de 1200px (para que se vean los textos)
+        const baseWidth = 1400;
+        const baseHeight = 1100;
+        canvas.width = baseWidth;
+        canvas.height = baseHeight;
+        
+        // Ajustar el estilo para que el wrapper pueda hacer scroll
+        canvas.style.width = baseWidth + 'px';
+        canvas.style.height = baseHeight + 'px';
         
         const ctx = canvas.getContext('2d');
         const w = canvas.width, h = canvas.height;
@@ -716,22 +736,21 @@
             ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(w,i); ctx.stroke();
         }
         ctx.beginPath();
-        ctx.arc(w/2, h/2, Math.min(w,h)*0.1, 0, 2*Math.PI);
+        ctx.arc(w/2, h/2, 80, 0, 2*Math.PI);
         ctx.stroke();
         
-        ctx.font = `bold ${Math.min(w,h)*0.05}px "Segoe UI"`;
+        ctx.font = 'bold 34px "Segoe UI"';
         ctx.fillStyle = '#ffdd77';
-        ctx.shadowBlur = 5;
-        ctx.shadowColor = 'gold';
-        ctx.fillText('🏆', w/2 - w*0.05, h/2 - h*0.1);
-        ctx.font = `bold ${Math.min(w,h)*0.03}px monospace`;
+        ctx.shadowBlur = 8;
+        ctx.fillText('🏆', w/2-28, h/2-40);
+        ctx.font = 'bold 20px monospace';
         ctx.fillStyle = '#ffeeaa';
-        ctx.fillText('FINAL MÉXICO 2026', w/2 - w*0.2, h/2 + h*0.05);
+        ctx.fillText('FINAL MÉXICO 2026', w/2-130, h/2+30);
         ctx.shadowBlur = 0;
         
-        // Posiciones relativas
-        const margin = { left: w*0.07, right: w*0.07, top: h*0.1, bottom: h*0.05 };
-        const stepX = (w - margin.left - margin.right) / 5; // 5 columnas
+        // Posiciones fijas en el canvas grande
+        const margin = { left: 80, right: 80, top: 100, bottom: 80 };
+        const stepX = (w - margin.left - margin.right) / 5;
         const leftX = [margin.left, margin.left+stepX, margin.left+stepX*2, margin.left+stepX*3, w/2];
         const rightX = [w-margin.left, w-margin.left-stepX, w-margin.left-stepX*2, w-margin.left-stepX*3, w/2];
         
@@ -742,26 +761,27 @@
         }
         
         function drawMatch(x,y, eqA,eqB,gA,gB,ganador) {
-            const boxW = stepX * 0.8;
-            const boxH = Math.min(50, h*0.07);
+            const boxW = stepX * 0.7;
+            const boxH = 52;
             if(x-boxW/2 < 0) return;
             ctx.fillStyle = '#fef0cf';
             ctx.fillRect(x-boxW/2, y-boxH/2, boxW, boxH);
             ctx.strokeStyle = '#ff9900';
             ctx.strokeRect(x-boxW/2, y-boxH/2, boxW, boxH);
             ctx.fillStyle = '#2c5a2a';
-            ctx.font = `bold ${Math.min(12, boxH*0.4)}px monospace`;
-            let a = eqA ? (eqA.length>12?eqA.slice(0,10)+'…':eqA) : '???';
-            let b = eqB ? (eqB.length>12?eqB.slice(0,10)+'…':eqB) : '???';
-            ctx.fillText(a, x-boxW/2+5, y-5);
-            ctx.fillText(b, x-boxW/2+5, y+12);
+            ctx.font = 'bold 13px monospace';
+            let a = eqA ? (eqA.length>14?eqA.slice(0,11)+'…':eqA) : '???';
+            let b = eqB ? (eqB.length>14?eqB.slice(0,11)+'…':eqB) : '???';
+            ctx.fillText(a, x-boxW/2+6, y-6);
+            ctx.fillText(b, x-boxW/2+6, y+14);
             if(gA!==null && gB!==null) {
                 ctx.fillStyle = '#d45a1a';
-                ctx.fillText(`${gA} - ${gB}`, x+boxW/2-35, y+3);
+                ctx.font = 'bold 13px monospace';
+                ctx.fillText(`${gA} - ${gB}`, x+boxW/2-42, y+4);
             }
             if(ganador && ganador!=='Empate') {
                 ctx.fillStyle = '#2e8b57';
-                ctx.fillText('✓', x+boxW/2-12, y-8);
+                ctx.fillText('✓', x+boxW/2-18, y-10);
             }
         }
         
@@ -783,9 +803,9 @@
                             const xn = leftX[r+1];
                             const yn = getY(r+1,nxtIdx, leftCnt/2);
                             ctx.beginPath();
-                            ctx.moveTo(x+stepX*0.35, y);
-                            ctx.lineTo(xn-stepX*0.35, y);
-                            ctx.lineTo(xn-stepX*0.35, yn);
+                            ctx.moveTo(x+stepX*0.3, y);
+                            ctx.lineTo(xn-stepX*0.3, y);
+                            ctx.lineTo(xn-stepX*0.3, yn);
                             ctx.lineTo(xn-stepX*0.1, yn);
                             ctx.stroke();
                         }
@@ -803,9 +823,9 @@
                         const xn = rightX[r+1];
                         const yn = getY(r+1,nxtIdx, leftCnt/2);
                         ctx.beginPath();
-                        ctx.moveTo(x-stepX*0.35, y);
-                        ctx.lineTo(xn+stepX*0.35, y);
-                        ctx.lineTo(xn+stepX*0.35, yn);
+                        ctx.moveTo(x-stepX*0.3, y);
+                        ctx.lineTo(xn+stepX*0.3, y);
+                        ctx.lineTo(xn+stepX*0.3, yn);
                         ctx.lineTo(xn+stepX*0.1, yn);
                         ctx.stroke();
                     }
@@ -818,34 +838,33 @@
             const semis = knockoutMatches[3];
             if(semis && semis[0]) {
                 const yL = getY(3,0,1);
-                ctx.beginPath(); ctx.moveTo(leftX[3]+stepX*0.35, yL);
-                ctx.lineTo(w/2-stepX*0.35, yL);
-                ctx.lineTo(w/2-stepX*0.35, getY(4,0,1));
+                ctx.beginPath(); ctx.moveTo(leftX[3]+stepX*0.3, yL);
+                ctx.lineTo(w/2-stepX*0.3, yL);
+                ctx.lineTo(w/2-stepX*0.3, getY(4,0,1));
                 ctx.lineTo(w/2-stepX*0.1, getY(4,0,1));
                 ctx.stroke();
             }
             if(semis && semis[1]) {
                 const yR = getY(3,1,1);
-                ctx.beginPath(); ctx.moveTo(rightX[3]-stepX*0.35, yR);
-                ctx.lineTo(w/2+stepX*0.35, yR);
-                ctx.lineTo(w/2+stepX*0.35, getY(4,0,1));
+                ctx.beginPath(); ctx.moveTo(rightX[3]-stepX*0.3, yR);
+                ctx.lineTo(w/2+stepX*0.3, yR);
+                ctx.lineTo(w/2+stepX*0.3, getY(4,0,1));
                 ctx.lineTo(w/2+stepX*0.1, getY(4,0,1));
                 ctx.stroke();
             }
         }
         
-        // Etiquetas de rondas
         ctx.fillStyle = '#ffdd77';
-        ctx.font = `bold ${Math.min(14, w*0.02)}px monospace`;
-        ctx.fillText('16avos', margin.left-10, margin.top-5);
-        ctx.fillText('Octavos', leftX[1]-10, margin.top-5);
-        ctx.fillText('Cuartos', leftX[2]-10, margin.top-5);
-        ctx.fillText('Semis', leftX[3]-10, margin.top-5);
-        ctx.fillText('Final', w/2-25, margin.top-5);
-        ctx.fillText('16avos', rightX[0]-40, margin.top-5);
-        ctx.fillText('Octavos', rightX[1]-40, margin.top-5);
-        ctx.fillText('Cuartos', rightX[2]-40, margin.top-5);
-        ctx.fillText('Semis', rightX[3]-40, margin.top-5);
+        ctx.font = 'bold 14px monospace';
+        ctx.fillText('16avos', margin.left-15, margin.top-8);
+        ctx.fillText('Octavos', leftX[1]-15, margin.top-8);
+        ctx.fillText('Cuartos', leftX[2]-15, margin.top-8);
+        ctx.fillText('Semis', leftX[3]-15, margin.top-8);
+        ctx.fillText('Final', w/2-30, margin.top-8);
+        ctx.fillText('16avos', rightX[0]-55, margin.top-8);
+        ctx.fillText('Octavos', rightX[1]-55, margin.top-8);
+        ctx.fillText('Cuartos', rightX[2]-55, margin.top-8);
+        ctx.fillText('Semis', rightX[3]-55, margin.top-8);
     }
 
     // --------------------------------------------------------------
