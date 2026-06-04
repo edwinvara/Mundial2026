@@ -179,7 +179,7 @@
             margin-top: 12px;
         }
 
-        /* Segunda Fase (eliminatorias) */
+        /* Segunda Fase */
         .stages-container {
             max-height: 75vh;
             overflow-y: auto;
@@ -239,11 +239,12 @@
             margin-top: 6px;
         }
 
-        /* Canvas para la pestaña FINAL - versión corregida (separación semifinales y final) */
+        /* Canvas para la pestaña FINAL - nuevo diseño horizontal con scroll */
         .canvas-wrapper {
             background: #2e7d32;
             border-radius: 24px;
-            overflow: auto;
+            overflow-x: auto;
+            overflow-y: hidden;
             border: 2px solid #ffcc66;
             width: 100%;
             height: 70vh;
@@ -252,8 +253,8 @@
         canvas {
             display: block;
             background: radial-gradient(circle, #3cae5a, #1a5a2a);
-            width: 1400px;
-            height: 1000px;
+            width: 2400px;
+            height: 900px;
         }
         .info-badge {
             text-align: center;
@@ -298,14 +299,14 @@
 
 <div id="eliminatorias" class="tab-pane">
     <div class="canvas-wrapper" id="canvasWrapper">
-        <canvas id="bracketCanvas" width="1400" height="1000"></canvas>
+        <canvas id="bracketCanvas" width="2400" height="900"></canvas>
     </div>
-    <div class="info-badge">🤏 Usa dos dedos para hacer zoom | Un dedo para desplazarte</div>
+    <div class="info-badge">👆 Desliza horizontalmente con un dedo para ver todo el cuadro | No necesitas zoom</div>
 </div>
 
 <script>
     // --------------------------------------------------------------
-    // DATOS DE GRUPOS (con horarios corregidos: -2 horas respecto a los que diste)
+    // DATOS DE GRUPOS (con horarios corregidos: -2 horas)
     // --------------------------------------------------------------
     const gruposFull = [
         { id:'A', equipos:['México','Sudáfrica','República de Corea','República Checa'], flags:['mx','za','kr','cz'],
@@ -419,25 +420,25 @@
     ];
 
     // --------------------------------------------------------------
-    // DEFINICIÓN DE LA LLAVE OFICIAL (cruces según documento)
+    // DEFINICIÓN DE LA LLAVE OFICIAL (cruces)
     // --------------------------------------------------------------
     const dieciseisavosDef = [
-        { id:73,  tipo: "2A_vs_2B",       desc: "2° Grupo A vs 2° Grupo B",            fecha:"Dom 28/06", hora:"13:00", sede:"SoFi Stadium, Los Angeles" },
-        { id:74,  tipo: "1E_vs_3_ABCD_F", desc: "1° Grupo E vs 3° de A/B/C/D/F",       fecha:"Lun 29/06", hora:"14:30", sede:"Gillette Stadium, Foxborough" },
-        { id:75,  tipo: "1F_vs_2C",       desc: "1° Grupo F vs 2° Grupo C",            fecha:"Lun 29/06", hora:"19:00", sede:"Estadio BBVA, Monterrey" },
-        { id:76,  tipo: "1C_vs_2F",       desc: "1° Grupo C vs 2° Grupo F",            fecha:"Lun 29/06", hora:"11:00", sede:"NRG Stadium, Houston" },
-        { id:77,  tipo: "1I_vs_3_CDFGH",  desc: "1° Grupo I vs 3° de C/D/F/G/H",       fecha:"Mar 30/06", hora:"15:00", sede:"MetLife Stadium, East Rutherford" },
-        { id:78,  tipo: "2E_vs_2I",       desc: "2° Grupo E vs 2° Grupo I",            fecha:"Mar 30/06", hora:"11:00", sede:"AT&T Stadium, Arlington" },
-        { id:79,  tipo: "1A_vs_3_CEFHI",  desc: "1° Grupo A vs 3° de C/E/F/H/I",       fecha:"Mar 30/06", hora:"19:00", sede:"Estadio Azteca, CDMX" },
-        { id:80,  tipo: "1L_vs_3_EHIJK",  desc: "1° Grupo L vs 3° de E/H/I/J/K",       fecha:"Mié 01/07", hora:"10:00", sede:"Mercedes-Benz Stadium, Atlanta" },
-        { id:81,  tipo: "1D_vs_3_BEFIJ",  desc: "1° Grupo D vs 3° de B/E/F/I/J",       fecha:"Mié 01/07", hora:"18:00", sede:"Levi's Stadium, Santa Clara" },
-        { id:82,  tipo: "1G_vs_3_AEHIJ",  desc: "1° Grupo G vs 3° de A/E/H/I/J",       fecha:"Mié 01/07", hora:"14:00", sede:"Lumen Field, Seattle" },
-        { id:83,  tipo: "2K_vs_2L",       desc: "2° Grupo K vs 2° Grupo L",            fecha:"Jue 02/07", hora:"17:00", sede:"BMO Field, Toronto" },
-        { id:84,  tipo: "1H_vs_2J",       desc: "1° Grupo H vs 2° Grupo J",            fecha:"Jue 02/07", hora:"13:00", sede:"SoFi Stadium, Los Angeles" },
-        { id:85,  tipo: "1B_vs_3_EFGIJ",  desc: "1° Grupo B vs 3° de E/F/G/I/J",       fecha:"Jue 02/07", hora:"21:00", sede:"BC Place, Vancouver" },
-        { id:86,  tipo: "1J_vs_2H",       desc: "1° Grupo J vs 2° Grupo H",            fecha:"Vie 03/07", hora:"16:00", sede:"Hard Rock Stadium, Miami" },
-        { id:87,  tipo: "1K_vs_3_DEIJL",  desc: "1° Grupo K vs 3° de D/E/I/J/L",       fecha:"Vie 03/07", hora:"19:30", sede:"Arrowhead Stadium, Kansas City" },
-        { id:88,  tipo: "2D_vs_2G",       desc: "2° Grupo D vs 2° Grupo G",            fecha:"Vie 03/07", hora:"12:00", sede:"AT&T Stadium, Arlington" }
+        { id:73,  tipo: "2A_vs_2B",       fecha:"Dom 28/06", hora:"13:00", sede:"SoFi Stadium, Los Angeles" },
+        { id:74,  tipo: "1E_vs_3_ABCD_F", fecha:"Lun 29/06", hora:"14:30", sede:"Gillette Stadium, Foxborough" },
+        { id:75,  tipo: "1F_vs_2C",       fecha:"Lun 29/06", hora:"19:00", sede:"Estadio BBVA, Monterrey" },
+        { id:76,  tipo: "1C_vs_2F",       fecha:"Lun 29/06", hora:"11:00", sede:"NRG Stadium, Houston" },
+        { id:77,  tipo: "1I_vs_3_CDFGH",  fecha:"Mar 30/06", hora:"15:00", sede:"MetLife Stadium, East Rutherford" },
+        { id:78,  tipo: "2E_vs_2I",       fecha:"Mar 30/06", hora:"11:00", sede:"AT&T Stadium, Arlington" },
+        { id:79,  tipo: "1A_vs_3_CEFHI",  fecha:"Mar 30/06", hora:"19:00", sede:"Estadio Azteca, CDMX" },
+        { id:80,  tipo: "1L_vs_3_EHIJK",  fecha:"Mié 01/07", hora:"10:00", sede:"Mercedes-Benz Stadium, Atlanta" },
+        { id:81,  tipo: "1D_vs_3_BEFIJ",  fecha:"Mié 01/07", hora:"18:00", sede:"Levi's Stadium, Santa Clara" },
+        { id:82,  tipo: "1G_vs_3_AEHIJ",  fecha:"Mié 01/07", hora:"14:00", sede:"Lumen Field, Seattle" },
+        { id:83,  tipo: "2K_vs_2L",       fecha:"Jue 02/07", hora:"17:00", sede:"BMO Field, Toronto" },
+        { id:84,  tipo: "1H_vs_2J",       fecha:"Jue 02/07", hora:"13:00", sede:"SoFi Stadium, Los Angeles" },
+        { id:85,  tipo: "1B_vs_3_EFGIJ",  fecha:"Jue 02/07", hora:"21:00", sede:"BC Place, Vancouver" },
+        { id:86,  tipo: "1J_vs_2H",       fecha:"Vie 03/07", hora:"16:00", sede:"Hard Rock Stadium, Miami" },
+        { id:87,  tipo: "1K_vs_3_DEIJL",  fecha:"Vie 03/07", hora:"19:30", sede:"Arrowhead Stadium, Kansas City" },
+        { id:88,  tipo: "2D_vs_2G",       fecha:"Vie 03/07", hora:"12:00", sede:"AT&T Stadium, Arlington" }
     ];
     
     const octavosDef = [
@@ -468,7 +469,7 @@
     ];
     
     // --------------------------------------------------------------
-    // LÓGICA PARA ASIGNAR EQUIPOS A CADA CRUCE
+    // LÓGICA DE CLASIFICACIÓN Y CRUCES
     // --------------------------------------------------------------
     let groupStats = {};
     let groupMatches = {};
@@ -536,7 +537,6 @@
     }
     
     function actualizarBracketCompleto() {
-        // Actualizar equipos de 16avos solo si no hay resultado
         for(let i=0; i<dieciseisavosDef.length; i++) {
             const p = knockoutMatches[0][i];
             if(p.gA === null && p.gB === null) {
@@ -545,7 +545,6 @@
                 p.equipoB = eqB;
             }
         }
-        // Propagar ganadores
         for(let r=0; r<knockoutMatches.length-1; r++) {
             const actual = knockoutMatches[r];
             const siguiente = knockoutMatches[r+1];
@@ -628,7 +627,7 @@
     }
     
     function loadFromStorage() {
-        const stored = localStorage.getItem('Mundial2026_v6');
+        const stored = localStorage.getItem('Mundial2026_v7');
         if(stored) {
             const data = JSON.parse(stored);
             groupMatches = data.groupMatches;
@@ -647,8 +646,8 @@
     }
     
     function saveToStorage() {
-        const toSave = { groupMatches, knockoutMatches, version:'6.0' };
-        localStorage.setItem('Mundial2026_v6', JSON.stringify(toSave));
+        const toSave = { groupMatches, knockoutMatches, version:'7.0' };
+        localStorage.setItem('Mundial2026_v7', JSON.stringify(toSave));
     }
     
     function renderGroupsUI() {
@@ -764,7 +763,7 @@
     }
     
     // --------------------------------------------------------------
-    // CANVAS CORREGIDO - Separación entre semifinales y final
+    // NUEVO CANVAS: diseño horizontal con final en el centro exacto
     // --------------------------------------------------------------
     function drawCanvas() {
         const canvas = document.getElementById('bracketCanvas');
@@ -774,158 +773,197 @@
         ctx.clearRect(0,0,w,h);
         ctx.fillStyle = '#3cae5a';
         ctx.fillRect(0,0,w,h);
-        // Líneas de fondo
+        // Líneas de fondo decorativas
         ctx.beginPath();
         ctx.strokeStyle = '#ffffbb';
-        ctx.lineWidth = 2;
-        for(let i=0;i<20;i++) {
-            ctx.beginPath(); ctx.moveTo(0,i*60); ctx.lineTo(w,i*60); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(i*100,0); ctx.lineTo(i*100,h); ctx.stroke();
+        ctx.lineWidth = 1;
+        for(let i=0;i<w/50;i++) {
+            ctx.beginPath(); ctx.moveTo(i*50,0); ctx.lineTo(i*50,h); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0,i*50); ctx.lineTo(w,i*50); ctx.stroke();
         }
-        ctx.beginPath(); ctx.arc(w/2, h/2, 80, 0, 2*Math.PI); ctx.stroke();
-        ctx.font = 'bold 48px "Segoe UI"'; ctx.fillStyle = '#ffdd77';
-        ctx.shadowBlur = 15; ctx.shadowColor = 'gold';
-        ctx.fillText('🏆', w/2-35, h/2-40);
-        ctx.font = 'bold 22px monospace'; ctx.fillStyle = '#ffeeaa';
-        ctx.fillText('FINAL MÉXICO 2026', w/2-130, h/2+60);
-        ctx.shadowBlur = 0;
         
+        // Posiciones horizontales (X) para cada ronda
+        // Final en el centro: w/2 = 1200
+        // Semifinales: una a izquierda y otra a derecha de la final
+        // Cuartos, octavos, dieciseisavos hacia los extremos
         const centerX = w/2;
-        // Ajuste de alturas: separar más la final de las semifinales
-        // Las semifinales se dibujan arriba y abajo del centro, la final se baja más.
-        const finalY = h/2 + 120;  // antes era h/2 -60, ahora muy abajo
-        const semisYbase = h/2 - 20; // punto medio para las dos semifinales (una arriba, otra abajo)
+        const finalX = centerX;
+        const semiLeftX = centerX - 280;
+        const semiRightX = centerX + 280;
+        const cuartosLeftX = semiLeftX - 280;
+        const cuartosRightX = semiRightX + 280;
+        const octavosLeftX = cuartosLeftX - 280;
+        const octavosRightX = cuartosRightX + 280;
+        const dieciseisavosLeftX = octavosLeftX - 280;
+        const dieciseisavosRightX = octavosRightX + 280;
         
-        // Posiciones X para cada ronda
-        const leftX = [120, 320, 520, 720, centerX];
-        const rightX = [w-120, w-320, w-520, w-720, centerX];
+        // Posiciones verticales (Y) para cada ronda (centradas en el alto)
+        const centerY = h/2;
+        // Función para obtener Y según el índice del partido y el total de partidos en ese lado
+        function getY(idx, total, offsetY = 0) {
+            const step = 70; // separación vertical entre partidos
+            const startY = centerY - ((total-1) * step)/2;
+            return startY + (idx * step) + offsetY;
+        }
         
-        function drawMatch(x,y,eqA,eqB,gA,gB,ganador) {
-            const boxW = 200, boxH = 60;
-            if(x-boxW/2 < 0) return;
+        // Dibujar un partido
+        function drawMatch(x, y, eqA, eqB, gA, gB, ganador) {
+            const boxW = 220, boxH = 56;
             ctx.fillStyle = '#fef0cf';
             ctx.fillRect(x-boxW/2, y-boxH/2, boxW, boxH);
             ctx.strokeStyle = '#ff9900';
+            ctx.lineWidth = 2;
             ctx.strokeRect(x-boxW/2, y-boxH/2, boxW, boxH);
             ctx.fillStyle = '#2c5a2a';
-            ctx.font = 'bold 14px monospace';
-            let a = eqA ? (eqA.length>15?eqA.slice(0,12)+'…':eqA) : '???';
-            let b = eqB ? (eqB.length>15?eqB.slice(0,12)+'…':eqB) : '???';
+            ctx.font = 'bold 13px monospace';
+            let a = eqA ? (eqA.length>18?eqA.slice(0,15)+'…':eqA) : '???';
+            let b = eqB ? (eqB.length>18?eqB.slice(0,15)+'…':eqB) : '???';
             ctx.fillText(a, x-boxW/2+8, y-8);
-            ctx.fillText(b, x-boxW/2+8, y+18);
+            ctx.fillText(b, x-boxW/2+8, y+16);
             if(gA!==null && gB!==null) {
                 ctx.fillStyle = '#d45a1a';
-                ctx.font = 'bold 14px monospace';
-                ctx.fillText(`${gA} - ${gB}`, x+boxW/2-50, y+5);
+                ctx.font = 'bold 13px monospace';
+                ctx.fillText(`${gA} - ${gB}`, x+boxW/2-50, y+4);
             }
             if(ganador && ganador!=='Empate') {
                 ctx.fillStyle = '#2e8b57';
-                ctx.font = 'bold 12px monospace';
-                ctx.fillText('✓', x+boxW/2-20, y-12);
+                ctx.font = 'bold 11px monospace';
+                ctx.fillText('✓', x+boxW/2-18, y-12);
             }
         }
         
-        // Función para obtener Y en rondas que no son final (índice ronda, índice partido, total partidos en ese lado)
-        function getY(r, idx, total) {
-            if(r === 4) return finalY; // no se usa porque la final se dibuja aparte
-            // Para las otras rondas, usamos el mismo espaciado de antes
-            const startY = h/2 - (total-1)*45;
-            return startY + idx * 90;
+        // Conectar dos puntos con línea curva o recta
+        function connect(x1, y1, x2, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x1 + (x2-x1)*0.5, y1);
+            ctx.lineTo(x1 + (x2-x1)*0.5, y2);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
         }
         
-        // Dibujar todas las rondas excepto la final (que la dibujaremos al final con su posición especial)
-        for(let r=0; r<=3; r++) {  // r=0,1,2,3 (dieciseisavos a semis)
-            const matches = knockoutMatches[r];
-            if(!matches) continue;
-            const total = matches.length;
-            const leftCnt = r===3 ? 2 : total/2; // semis tiene 2 partidos, cada lado 1
-            for(let i=0; i<leftCnt; i++) {
-                const left = matches[i];
-                if(left) {
-                    const y = getY(r,i,leftCnt);
-                    const x = leftX[r];
-                    drawMatch(x,y,left.equipoA,left.equipoB,left.gA,left.gB,left.ganador);
-                    if(r<3) {
-                        const nxtIdx = Math.floor(i/2);
-                        const nxt = knockoutMatches[r+1];
-                        if(nxt && nxt[nxtIdx]) {
-                            const xn = leftX[r+1];
-                            const yn = getY(r+1,nxtIdx, leftCnt/2);
-                            ctx.beginPath();
-                            ctx.moveTo(x+100,y); ctx.lineTo(xn-100,y);
-                            ctx.lineTo(xn-100,yn); ctx.lineTo(xn-30,yn);
-                            ctx.stroke();
-                        }
-                    }
+        // --------------------------------------------------------------
+        // DIBUJAR RONDA DE DIECISEISAVOS (16 partidos, 8 a cada lado)
+        // --------------------------------------------------------------
+        const r32 = knockoutMatches[0];
+        if(r32 && r32.length === 16) {
+            // Lado izquierdo: partidos 0..7
+            for(let i=0; i<8; i++) {
+                const partido = r32[i];
+                const y = getY(i, 8);
+                drawMatch(dieciseisavosLeftX, y, partido.equipoA, partido.equipoB, partido.gA, partido.gB, partido.ganador);
+                // Conectar a octavos (índice i/2)
+                if(i%2===0) {
+                    const idxOct = Math.floor(i/2);
+                    const yOct = getY(idxOct, 4);
+                    connect(dieciseisavosLeftX+110, y, octavosLeftX-110, yOct);
                 }
-                const rightIdx = total-1-i;
-                const right = matches[rightIdx];
-                if(right && r<3) {
-                    const y = getY(r,i,leftCnt);
-                    const x = rightX[r];
-                    drawMatch(x,y,right.equipoA,right.equipoB,right.gA,right.gB,right.ganador);
-                    const nxtIdx = Math.floor(i/2);
-                    const nxt = knockoutMatches[r+1];
-                    if(nxt && nxt[nxtIdx]) {
-                        const xn = rightX[r+1];
-                        const yn = getY(r+1,nxtIdx, leftCnt/2);
-                        ctx.beginPath();
-                        ctx.moveTo(x-100,y); ctx.lineTo(xn+100,y);
-                        ctx.lineTo(xn+100,yn); ctx.lineTo(xn+30,yn);
-                        ctx.stroke();
-                    }
+            }
+            // Lado derecho: partidos 15..8 (invertidos)
+            for(let i=0; i<8; i++) {
+                const partido = r32[15-i];
+                const y = getY(i, 8);
+                drawMatch(dieciseisavosRightX, y, partido.equipoA, partido.equipoB, partido.gA, partido.gB, partido.ganador);
+                if(i%2===0) {
+                    const idxOct = Math.floor(i/2);
+                    const yOct = getY(idxOct, 4);
+                    connect(dieciseisavosRightX-110, y, octavosRightX+110, yOct);
                 }
             }
         }
         
-        // Dibujar semifinales (ronda 3) con conexión a la final
-        const semis = knockoutMatches[3];
-        if(semis && semis.length === 2) {
-            // Semifinal izquierda (primera) y derecha (segunda)
-            const ySemisLeft = getY(3,0,2);   // primera semifinal (i=0)
-            const ySemisRight = getY(3,1,2);  // segunda semifinal (i=1)
-            const xSemisLeft = leftX[3];
-            const xSemisRight = rightX[3];
-            
-            // Dibujar las semifinales (ya se dibujaron arriba, pero las volvemos a dibujar para asegurar)
-            drawMatch(xSemisLeft, ySemisLeft, semis[0].equipoA, semis[0].equipoB, semis[0].gA, semis[0].gB, semis[0].ganador);
-            drawMatch(xSemisRight, ySemisRight, semis[1].equipoA, semis[1].equipoB, semis[1].gA, semis[1].gB, semis[1].ganador);
-            
-            // Conectar semifinal izquierda a la final
-            ctx.beginPath();
-            ctx.moveTo(xSemisLeft+100, ySemisLeft);
-            ctx.lineTo(centerX-100, ySemisLeft);
-            ctx.lineTo(centerX-100, finalY);
-            ctx.lineTo(centerX-40, finalY);
-            ctx.stroke();
-            
-            // Conectar semifinal derecha a la final
-            ctx.beginPath();
-            ctx.moveTo(xSemisRight-100, ySemisRight);
-            ctx.lineTo(centerX+100, ySemisRight);
-            ctx.lineTo(centerX+100, finalY);
-            ctx.lineTo(centerX+40, finalY);
-            ctx.stroke();
+        // --------------------------------------------------------------
+        // OCTAVOS (8 partidos, 4 a cada lado)
+        // --------------------------------------------------------------
+        const r16 = knockoutMatches[1];
+        if(r16 && r16.length === 8) {
+            for(let i=0; i<4; i++) {
+                const partidoIzq = r16[i];
+                const y = getY(i, 4);
+                drawMatch(octavosLeftX, y, partidoIzq.equipoA, partidoIzq.equipoB, partidoIzq.gA, partidoIzq.gB, partidoIzq.ganador);
+                // Conectar a cuartos
+                if(i%2===0) {
+                    const idxCuar = Math.floor(i/2);
+                    const yCuar = getY(idxCuar, 2);
+                    connect(octavosLeftX+110, y, cuartosLeftX-110, yCuar);
+                }
+            }
+            for(let i=0; i<4; i++) {
+                const partidoDer = r16[7-i];
+                const y = getY(i, 4);
+                drawMatch(octavosRightX, y, partidoDer.equipoA, partidoDer.equipoB, partidoDer.gA, partidoDer.gB, partidoDer.ganador);
+                if(i%2===0) {
+                    const idxCuar = Math.floor(i/2);
+                    const yCuar = getY(idxCuar, 2);
+                    connect(octavosRightX-110, y, cuartosRightX+110, yCuar);
+                }
+            }
         }
         
-        // Dibujar la final en su nueva posición más abajo
+        // --------------------------------------------------------------
+        // CUARTOS (4 partidos, 2 a cada lado)
+        // --------------------------------------------------------------
+        const r8 = knockoutMatches[2];
+        if(r8 && r8.length === 4) {
+            for(let i=0; i<2; i++) {
+                const partidoIzq = r8[i];
+                const y = getY(i, 2);
+                drawMatch(cuartosLeftX, y, partidoIzq.equipoA, partidoIzq.equipoB, partidoIzq.gA, partidoIzq.gB, partidoIzq.ganador);
+                // Conectar a semifinal izquierda
+                connect(cuartosLeftX+110, y, semiLeftX-110, getY(0,1));
+            }
+            for(let i=0; i<2; i++) {
+                const partidoDer = r8[3-i];
+                const y = getY(i, 2);
+                drawMatch(cuartosRightX, y, partidoDer.equipoA, partidoDer.equipoB, partidoDer.gA, partidoDer.gB, partidoDer.ganador);
+                connect(cuartosRightX-110, y, semiRightX+110, getY(0,1));
+            }
+        }
+        
+        // --------------------------------------------------------------
+        // SEMIFINALES (2 partidos, uno izquierda, uno derecha)
+        // --------------------------------------------------------------
+        const r4 = knockoutMatches[3];
+        if(r4 && r4.length === 2) {
+            const semiLeft = r4[0];
+            const semiRight = r4[1];
+            const ySemi = getY(0,1);
+            drawMatch(semiLeftX, ySemi, semiLeft.equipoA, semiLeft.equipoB, semiLeft.gA, semiLeft.gB, semiLeft.ganador);
+            drawMatch(semiRightX, ySemi, semiRight.equipoA, semiRight.equipoB, semiRight.gA, semiRight.gB, semiRight.ganador);
+            // Conectar a la final
+            connect(semiLeftX+110, ySemi, finalX-110, centerY);
+            connect(semiRightX-110, ySemi, finalX+110, centerY);
+        }
+        
+        // --------------------------------------------------------------
+        // FINAL (centro exacto)
+        // --------------------------------------------------------------
         const finalMatch = knockoutMatches[4]?.[0];
         if(finalMatch) {
-            drawMatch(centerX, finalY, finalMatch.equipoA, finalMatch.equipoB, finalMatch.gA, finalMatch.gB, finalMatch.ganador);
+            drawMatch(finalX, centerY, finalMatch.equipoA, finalMatch.equipoB, finalMatch.gA, finalMatch.gB, finalMatch.ganador);
         }
         
-        // Etiquetas de rondas
+        // --------------------------------------------------------------
+        // TROFEO Y ETIQUETAS
+        // --------------------------------------------------------------
+        ctx.font = 'bold 36px "Segoe UI"';
         ctx.fillStyle = '#ffdd77';
-        ctx.font = 'bold 16px monospace';
-        ctx.fillText('16avos', 40, 50);
-        ctx.fillText('Octavos', 260, 50);
-        ctx.fillText('Cuartos', 470, 50);
-        ctx.fillText('Semis', 670, 50);
-        ctx.fillText('Final', centerX-50, finalY-30);
-        ctx.fillText('16avos', w-180, 50);
-        ctx.fillText('Octavos', w-140, 50);
-        ctx.fillText('Cuartos', w-120, 50);
-        ctx.fillText('Semis', w-100, 50);
+        ctx.shadowBlur = 12;
+        ctx.fillText('🏆', finalX-25, centerY-70);
+        ctx.font = 'bold 18px monospace';
+        ctx.fillStyle = '#ffeeaa';
+        ctx.fillText('FINAL', finalX-35, centerY-100);
+        ctx.font = 'bold 14px monospace';
+        ctx.fillStyle = '#ffdd77';
+        ctx.fillText('16avos', dieciseisavosLeftX-70, 50);
+        ctx.fillText('Octavos', octavosLeftX-50, 50);
+        ctx.fillText('Cuartos', cuartosLeftX-50, 50);
+        ctx.fillText('Semis', semiLeftX-50, 50);
+        ctx.fillText('16avos', dieciseisavosRightX+20, 50);
+        ctx.fillText('Octavos', octavosRightX+10, 50);
+        ctx.fillText('Cuartos', cuartosRightX+10, 50);
+        ctx.fillText('Semis', semiRightX+10, 50);
+        ctx.shadowBlur = 0;
     }
     
     function setupTabs() {
