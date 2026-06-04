@@ -239,7 +239,7 @@
             margin-top: 6px;
         }
 
-        /* Canvas para la pestaña FINAL (versión anterior que funcionaba bien) */
+        /* Canvas para la pestaña FINAL - versión corregida (separación semifinales y final) */
         .canvas-wrapper {
             background: #2e7d32;
             border-radius: 24px;
@@ -470,6 +470,8 @@
     // --------------------------------------------------------------
     // LÓGICA PARA ASIGNAR EQUIPOS A CADA CRUCE
     // --------------------------------------------------------------
+    let groupStats = {};
+    let groupMatches = {};
     let knockoutMatches = [];
     
     function getEquiposOrdenados(grupoId) {
@@ -481,25 +483,25 @@
         })).sort((a,b) => b.pts - a.pts || (b.gf-b.gc) - (a.gf-a.gc) || b.gf - a.gf);
     }
     
-    function obtenerEquiposParaCruce(tipo, gruposMap) {
-        function getEquipo(grupo, pos) {
-            const ordenados = gruposMap[grupo];
-            if(!ordenados) return '???';
-            if(pos===1) return ordenados[0]?.nombre || '???';
-            if(pos===2) return ordenados[1]?.nombre || '???';
-            return '???';
+    function getEquipo(grupo, pos) {
+        const ord = getEquiposOrdenados(grupo);
+        if(!ord) return '???';
+        if(pos===1) return ord[0]?.nombre || '???';
+        if(pos===2) return ord[1]?.nombre || '???';
+        return '???';
+    }
+    
+    function getMejorTercero(gruposList) {
+        let mejores = [];
+        for(let g of gruposList) {
+            const ord = getEquiposOrdenados(g);
+            if(ord && ord[2]) mejores.push({ nombre: ord[2].nombre, pts: ord[2].pts, dif: ord[2].gf-ord[2].gc, gf: ord[2].gf });
         }
-        function getMejorTercero(gruposList) {
-            let mejores = [];
-            for(let g of gruposList) {
-                const ordenados = gruposMap[g];
-                if(ordenados && ordenados[2]) {
-                    mejores.push({ nombre: ordenados[2].nombre, pts: ordenados[2].pts, dif: ordenados[2].gf - ordenados[2].gc, gf: ordenados[2].gf });
-                }
-            }
-            mejores.sort((a,b) => b.pts - a.pts || b.dif - a.dif || b.gf - a.gf);
-            return mejores[0]?.nombre || '???';
-        }
+        mejores.sort((a,b)=>b.pts-a.pts || b.dif-a.dif || b.gf-a.gf);
+        return mejores[0]?.nombre || '???';
+    }
+    
+    function obtenerEquiposParaCruce(tipo) {
         switch(tipo) {
             case "2A_vs_2B": return [getEquipo('A',2), getEquipo('B',2)];
             case "1E_vs_3_ABCD_F": return [getEquipo('E',1), getMejorTercero(['A','B','C','D','F'])];
@@ -522,69 +524,28 @@
     }
     
     function construirKnockoutDesdeDefiniciones() {
-        const gruposMap = {};
-        gruposFull.forEach(g => {
-            gruposMap[g.id] = getEquiposOrdenados(g.id);
-        });
         const ronda32 = dieciseisavosDef.map(def => {
-            const [eqA, eqB] = obtenerEquiposParaCruce(def.tipo, gruposMap);
-            return {
-                id: def.id,
-                tipo: def.tipo,
-                equipoA: eqA,
-                equipoB: eqB,
-                fecha: def.fecha,
-                hora: def.hora,
-                sede: def.sede,
-                gA: null,
-                gB: null,
-                ganador: null
-            };
+            const [eqA, eqB] = obtenerEquiposParaCruce(def.tipo);
+            return { ...def, equipoA: eqA, equipoB: eqB, gA: null, gB: null, ganador: null };
         });
-        const ronda16 = octavosDef.map(def => ({
-            id: def.id,
-            tipo: def.tipo,
-            equipoA: null, equipoB: null,
-            fecha: def.fecha, hora: def.hora, sede: def.sede,
-            gA: null, gB: null, ganador: null
-        }));
-        const ronda8 = cuartosDef.map(def => ({
-            id: def.id, tipo: def.tipo,
-            equipoA: null, equipoB: null,
-            fecha: def.fecha, hora: def.hora, sede: def.sede,
-            gA: null, gB: null, ganador: null
-        }));
-        const ronda4 = semisDef.map(def => ({
-            id: def.id, tipo: def.tipo,
-            equipoA: null, equipoB: null,
-            fecha: def.fecha, hora: def.hora, sede: def.sede,
-            gA: null, gB: null, ganador: null
-        }));
-        const ronda2 = finalDef.map(def => ({
-            id: def.id, tipo: def.tipo,
-            equipoA: null, equipoB: null,
-            fecha: def.fecha, hora: def.hora, sede: def.sede,
-            gA: null, gB: null, ganador: null
-        }));
+        const ronda16 = octavosDef.map(def => ({ ...def, equipoA: null, equipoB: null, gA: null, gB: null, ganador: null }));
+        const ronda8 = cuartosDef.map(def => ({ ...def, equipoA: null, equipoB: null, gA: null, gB: null, ganador: null }));
+        const ronda4 = semisDef.map(def => ({ ...def, equipoA: null, equipoB: null, gA: null, gB: null, ganador: null }));
+        const ronda2 = finalDef.map(def => ({ ...def, equipoA: null, equipoB: null, gA: null, gB: null, ganador: null }));
         knockoutMatches = [ronda32, ronda16, ronda8, ronda4, ronda2];
     }
     
     function actualizarBracketCompleto() {
-        const gruposMap = {};
-        gruposFull.forEach(g => {
-            gruposMap[g.id] = getEquiposOrdenados(g.id);
-        });
-        if(knockoutMatches[0]) {
-            for(let i=0; i<dieciseisavosDef.length; i++) {
-                const def = dieciseisavosDef[i];
-                const partido = knockoutMatches[0][i];
-                if(partido.gA === null && partido.gB === null) {
-                    const [eqA, eqB] = obtenerEquiposParaCruce(def.tipo, gruposMap);
-                    partido.equipoA = eqA;
-                    partido.equipoB = eqB;
-                }
+        // Actualizar equipos de 16avos solo si no hay resultado
+        for(let i=0; i<dieciseisavosDef.length; i++) {
+            const p = knockoutMatches[0][i];
+            if(p.gA === null && p.gB === null) {
+                const [eqA, eqB] = obtenerEquiposParaCruce(p.tipo);
+                p.equipoA = eqA;
+                p.equipoB = eqB;
             }
         }
+        // Propagar ganadores
         for(let r=0; r<knockoutMatches.length-1; r++) {
             const actual = knockoutMatches[r];
             const siguiente = knockoutMatches[r+1];
@@ -602,7 +563,7 @@
                     if(p.ganador) {
                         const idxSig = Math.floor(i/2);
                         if(siguiente[idxSig]) {
-                            if(i % 2 === 0) siguiente[idxSig].equipoA = p.ganador;
+                            if(i%2===0) siguiente[idxSig].equipoA = p.ganador;
                             else siguiente[idxSig].equipoB = p.ganador;
                         }
                     }
@@ -615,37 +576,8 @@
     }
     
     // --------------------------------------------------------------
-    // ESTADOS DE GRUPOS (localStorage)
+    // FUNCIONES DE GRUPOS (igual que antes)
     // --------------------------------------------------------------
-    let groupStats = {};
-    let groupMatches = {};
-    
-    function loadFromStorage() {
-        const stored = localStorage.getItem('Mundial2026_v5');
-        if(stored) {
-            const data = JSON.parse(stored);
-            groupMatches = data.groupMatches;
-            knockoutMatches = data.knockoutMatches;
-            recalcularTodasStats();
-            if(!knockoutMatches || knockoutMatches.length === 0) {
-                construirKnockoutDesdeDefiniciones();
-            }
-            actualizarBracketCompleto();
-        } else {
-            initGroups();
-            construirKnockoutDesdeDefiniciones();
-            actualizarBracketCompleto();
-        }
-        renderGroupsUI();
-        renderKnockoutUI();
-        drawCanvas();
-    }
-    
-    function saveToStorage() {
-        const toSave = { groupMatches, knockoutMatches, version:'5.0' };
-        localStorage.setItem('Mundial2026_v5', JSON.stringify(toSave));
-    }
-    
     function initGroups() {
         gruposFull.forEach(g => {
             g.equipos.forEach(equipo => {
@@ -695,79 +627,28 @@
         saveToStorage();
     }
     
-    function obtenerClasificados() {
-        let gruposOrd = [];
-        gruposFull.forEach(g => {
-            const ord = getEquiposOrdenados(g.id);
-            gruposOrd.push({ grupo: g.id, primero: ord[0], segundo: ord[1], tercero: ord[2] });
-        });
-        let terceros = gruposOrd.map(g => ({ ...g.tercero, grupo: g.grupo }));
-        terceros.sort((a,b) => b.pts - a.pts || (b.gf-b.gc) - (a.gf-a.gc) || b.gf - a.gf);
-        const mejores = terceros.slice(0,8);
-        let clasif = [];
-        gruposOrd.forEach(g => {
-            clasif.push({ ...g.primero, pos: '1' });
-            clasif.push({ ...g.segundo, pos: '2' });
-        });
-        mejores.forEach(t => clasif.push({ ...t, pos: '3' }));
-        let final = [];
-        gruposFull.forEach(g => {
-            let p = clasif.find(c => c.grupo === g.id && c.pos === '1');
-            if(p) final.push(p);
-        });
-        gruposFull.forEach(g => {
-            let s = clasif.find(c => c.grupo === g.id && c.pos === '2');
-            if(s) final.push(s);
-        });
-        final.push(...mejores);
-        return final.slice(0,32);
+    function loadFromStorage() {
+        const stored = localStorage.getItem('Mundial2026_v6');
+        if(stored) {
+            const data = JSON.parse(stored);
+            groupMatches = data.groupMatches;
+            knockoutMatches = data.knockoutMatches;
+            recalcularTodasStats();
+            if(!knockoutMatches || knockoutMatches.length === 0) construirKnockoutDesdeDefiniciones();
+            actualizarBracketCompleto();
+        } else {
+            initGroups();
+            construirKnockoutDesdeDefiniciones();
+            actualizarBracketCompleto();
+        }
+        renderGroupsUI();
+        renderKnockoutUI();
+        drawCanvas();
     }
     
-    function renderKnockoutUI() {
-        const cont = document.getElementById('knockoutStages');
-        if(!cont) return;
-        const nombres = ['Dieciseisavos de final','Octavos de final','Cuartos de final','Semifinales','Final'];
-        cont.innerHTML = '';
-        knockoutMatches.forEach((ronda, idx) => {
-            const stage = document.createElement('div');
-            stage.className = 'stage';
-            stage.innerHTML = `<h2>🏅 ${nombres[idx]}</h2><div class="matches-grid" id="ronda-${idx}"></div>`;
-            cont.appendChild(stage);
-            const grid = document.getElementById(`ronda-${idx}`);
-            ronda.forEach((p, pi) => {
-                const card = document.createElement('div');
-                card.className = 'match-card';
-                card.innerHTML = `
-                    <div class="match-info-small">
-                        <span>📅 ${p.fecha || ''}</span>
-                        <span>⏰ ${p.hora || ''}</span>
-                        <span>🏟️ ${p.sede || ''}</span>
-                    </div>
-                    <div class="teams"><span>${p.equipoA || '???'}</span> 🆚 <span>${p.equipoB || '???'}</span></div>
-                    <div style="display:flex; justify-content:center; gap:12px; margin:8px 0">
-                        <input type="number" class="score-input" id="gA_${idx}_${pi}" value="${p.gA!==null?p.gA:''}" placeholder="0">
-                        <span>-</span>
-                        <input type="number" class="score-input" id="gB_${idx}_${pi}" value="${p.gB!==null?p.gB:''}" placeholder="0">
-                        <button class="save-knock" data-round="${idx}" data-match="${pi}">Guardar</button>
-                    </div>
-                    <div class="winner-badge">${p.ganador ? `✅ ${p.ganador}` : '⚡ Sin resultado'}</div>
-                `;
-                grid.appendChild(card);
-            });
-        });
-        document.querySelectorAll('.save-knock').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const r = parseInt(btn.dataset.round);
-                const m = parseInt(btn.dataset.match);
-                const gA = parseInt(document.getElementById(`gA_${r}_${m}`).value) || 0;
-                const gB = parseInt(document.getElementById(`gB_${r}_${m}`).value) || 0;
-                if(knockoutMatches[r][m]) {
-                    knockoutMatches[r][m].gA = gA;
-                    knockoutMatches[r][m].gB = gB;
-                    actualizarBracketCompleto();
-                }
-            });
-        });
+    function saveToStorage() {
+        const toSave = { groupMatches, knockoutMatches, version:'6.0' };
+        localStorage.setItem('Mundial2026_v6', JSON.stringify(toSave));
     }
     
     function renderGroupsUI() {
@@ -835,8 +716,55 @@
         });
     }
     
+    function renderKnockoutUI() {
+        const cont = document.getElementById('knockoutStages');
+        if(!cont) return;
+        const nombres = ['Dieciseisavos de final','Octavos de final','Cuartos de final','Semifinales','Final'];
+        cont.innerHTML = '';
+        knockoutMatches.forEach((ronda, idx) => {
+            const stage = document.createElement('div');
+            stage.className = 'stage';
+            stage.innerHTML = `<h2>🏅 ${nombres[idx]}</h2><div class="matches-grid" id="ronda-${idx}"></div>`;
+            cont.appendChild(stage);
+            const grid = document.getElementById(`ronda-${idx}`);
+            ronda.forEach((p, pi) => {
+                const card = document.createElement('div');
+                card.className = 'match-card';
+                card.innerHTML = `
+                    <div class="match-info-small">
+                        <span>📅 ${p.fecha || ''}</span>
+                        <span>⏰ ${p.hora || ''}</span>
+                        <span>🏟️ ${p.sede || ''}</span>
+                    </div>
+                    <div class="teams"><span>${p.equipoA || '???'}</span> 🆚 <span>${p.equipoB || '???'}</span></div>
+                    <div style="display:flex; justify-content:center; gap:12px; margin:8px 0">
+                        <input type="number" class="score-input" id="gA_${idx}_${pi}" value="${p.gA!==null?p.gA:''}" placeholder="0">
+                        <span>-</span>
+                        <input type="number" class="score-input" id="gB_${idx}_${pi}" value="${p.gB!==null?p.gB:''}" placeholder="0">
+                        <button class="save-knock" data-round="${idx}" data-match="${pi}">Guardar</button>
+                    </div>
+                    <div class="winner-badge">${p.ganador ? `✅ ${p.ganador}` : '⚡ Sin resultado'}</div>
+                `;
+                grid.appendChild(card);
+            });
+        });
+        document.querySelectorAll('.save-knock').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const r = parseInt(btn.dataset.round);
+                const m = parseInt(btn.dataset.match);
+                const gA = parseInt(document.getElementById(`gA_${r}_${m}`).value) || 0;
+                const gB = parseInt(document.getElementById(`gB_${r}_${m}`).value) || 0;
+                if(knockoutMatches[r][m]) {
+                    knockoutMatches[r][m].gA = gA;
+                    knockoutMatches[r][m].gB = gB;
+                    actualizarBracketCompleto();
+                }
+            });
+        });
+    }
+    
     // --------------------------------------------------------------
-    // CANVAS FINAL (CORREGIDO: mayor separación vertical entre semifinales y final)
+    // CANVAS CORREGIDO - Separación entre semifinales y final
     // --------------------------------------------------------------
     function drawCanvas() {
         const canvas = document.getElementById('bracketCanvas');
@@ -846,6 +774,7 @@
         ctx.clearRect(0,0,w,h);
         ctx.fillStyle = '#3cae5a';
         ctx.fillRect(0,0,w,h);
+        // Líneas de fondo
         ctx.beginPath();
         ctx.strokeStyle = '#ffffbb';
         ctx.lineWidth = 2;
@@ -856,12 +785,18 @@
         ctx.beginPath(); ctx.arc(w/2, h/2, 80, 0, 2*Math.PI); ctx.stroke();
         ctx.font = 'bold 48px "Segoe UI"'; ctx.fillStyle = '#ffdd77';
         ctx.shadowBlur = 15; ctx.shadowColor = 'gold';
-        ctx.fillText('🏆', w/2-35, h/2-30);
+        ctx.fillText('🏆', w/2-35, h/2-40);
         ctx.font = 'bold 22px monospace'; ctx.fillStyle = '#ffeeaa';
-        ctx.fillText('FINAL MÉXICO 2026', w/2-130, h/2+50);
+        ctx.fillText('FINAL MÉXICO 2026', w/2-130, h/2+60);
         ctx.shadowBlur = 0;
         
-        const centerX = w/2, centerY = h/2;
+        const centerX = w/2;
+        // Ajuste de alturas: separar más la final de las semifinales
+        // Las semifinales se dibujan arriba y abajo del centro, la final se baja más.
+        const finalY = h/2 + 120;  // antes era h/2 -60, ahora muy abajo
+        const semisYbase = h/2 - 20; // punto medio para las dos semifinales (una arriba, otra abajo)
+        
+        // Posiciones X para cada ronda
         const leftX = [120, 320, 520, 720, centerX];
         const rightX = [w-120, w-320, w-520, w-720, centerX];
         
@@ -889,22 +824,28 @@
                 ctx.fillText('✓', x+boxW/2-20, y-12);
             }
         }
-        function getY(r,m,total) {
-            const startY = centerY - (total-1)*55;  // CAMBIO: aumenté el espaciado vertical de 45 a 55
-            return startY + m * 110;                // CAMBIO: incrementé el paso de 90 a 110
+        
+        // Función para obtener Y en rondas que no son final (índice ronda, índice partido, total partidos en ese lado)
+        function getY(r, idx, total) {
+            if(r === 4) return finalY; // no se usa porque la final se dibuja aparte
+            // Para las otras rondas, usamos el mismo espaciado de antes
+            const startY = h/2 - (total-1)*45;
+            return startY + idx * 90;
         }
-        for(let r=0; r<=4; r++) {
+        
+        // Dibujar todas las rondas excepto la final (que la dibujaremos al final con su posición especial)
+        for(let r=0; r<=3; r++) {  // r=0,1,2,3 (dieciseisavos a semis)
             const matches = knockoutMatches[r];
             if(!matches) continue;
             const total = matches.length;
-            const leftCnt = r===4 ? 1 : total/2;
+            const leftCnt = r===3 ? 2 : total/2; // semis tiene 2 partidos, cada lado 1
             for(let i=0; i<leftCnt; i++) {
                 const left = matches[i];
                 if(left) {
                     const y = getY(r,i,leftCnt);
                     const x = leftX[r];
                     drawMatch(x,y,left.equipoA,left.equipoB,left.gA,left.gB,left.ganador);
-                    if(r<4) {
+                    if(r<3) {
                         const nxtIdx = Math.floor(i/2);
                         const nxt = knockoutMatches[r+1];
                         if(nxt && nxt[nxtIdx]) {
@@ -919,7 +860,7 @@
                 }
                 const rightIdx = total-1-i;
                 const right = matches[rightIdx];
-                if(right && r<4) {
+                if(right && r<3) {
                     const y = getY(r,i,leftCnt);
                     const x = rightX[r];
                     drawMatch(x,y,right.equipoA,right.equipoB,right.gA,right.gB,right.ganador);
@@ -936,32 +877,51 @@
                 }
             }
         }
+        
+        // Dibujar semifinales (ronda 3) con conexión a la final
+        const semis = knockoutMatches[3];
+        if(semis && semis.length === 2) {
+            // Semifinal izquierda (primera) y derecha (segunda)
+            const ySemisLeft = getY(3,0,2);   // primera semifinal (i=0)
+            const ySemisRight = getY(3,1,2);  // segunda semifinal (i=1)
+            const xSemisLeft = leftX[3];
+            const xSemisRight = rightX[3];
+            
+            // Dibujar las semifinales (ya se dibujaron arriba, pero las volvemos a dibujar para asegurar)
+            drawMatch(xSemisLeft, ySemisLeft, semis[0].equipoA, semis[0].equipoB, semis[0].gA, semis[0].gB, semis[0].ganador);
+            drawMatch(xSemisRight, ySemisRight, semis[1].equipoA, semis[1].equipoB, semis[1].gA, semis[1].gB, semis[1].ganador);
+            
+            // Conectar semifinal izquierda a la final
+            ctx.beginPath();
+            ctx.moveTo(xSemisLeft+100, ySemisLeft);
+            ctx.lineTo(centerX-100, ySemisLeft);
+            ctx.lineTo(centerX-100, finalY);
+            ctx.lineTo(centerX-40, finalY);
+            ctx.stroke();
+            
+            // Conectar semifinal derecha a la final
+            ctx.beginPath();
+            ctx.moveTo(xSemisRight-100, ySemisRight);
+            ctx.lineTo(centerX+100, ySemisRight);
+            ctx.lineTo(centerX+100, finalY);
+            ctx.lineTo(centerX+40, finalY);
+            ctx.stroke();
+        }
+        
+        // Dibujar la final en su nueva posición más abajo
         const finalMatch = knockoutMatches[4]?.[0];
         if(finalMatch) {
-            // CAMBIO: ajusté la posición de la final (más abajo) para mayor separación
-            const finalY = centerY + 50;  // antes era centerY-60
             drawMatch(centerX, finalY, finalMatch.equipoA, finalMatch.equipoB, finalMatch.gA, finalMatch.gB, finalMatch.ganador);
-            const semis = knockoutMatches[3];
-            if(semis && semis[0]) {
-                const yL = getY(3,0,1);
-                ctx.beginPath(); ctx.moveTo(leftX[3]+100, yL); ctx.lineTo(centerX-100, yL);
-                ctx.lineTo(centerX-100, finalY); ctx.lineTo(centerX-40, finalY);
-                ctx.stroke();
-            }
-            if(semis && semis[1]) {
-                const yR = getY(3,1,1);
-                ctx.beginPath(); ctx.moveTo(rightX[3]-100, yR); ctx.lineTo(centerX+100, yR);
-                ctx.lineTo(centerX+100, finalY); ctx.lineTo(centerX+40, finalY);
-                ctx.stroke();
-            }
         }
+        
+        // Etiquetas de rondas
         ctx.fillStyle = '#ffdd77';
         ctx.font = 'bold 16px monospace';
         ctx.fillText('16avos', 40, 50);
         ctx.fillText('Octavos', 260, 50);
         ctx.fillText('Cuartos', 470, 50);
         ctx.fillText('Semis', 670, 50);
-        ctx.fillText('Final', centerX-50, 100);
+        ctx.fillText('Final', centerX-50, finalY-30);
         ctx.fillText('16avos', w-180, 50);
         ctx.fillText('Octavos', w-140, 50);
         ctx.fillText('Cuartos', w-120, 50);
@@ -978,24 +938,18 @@
                 btn.classList.add('active');
                 panes.forEach(p => p.classList.remove('active-pane'));
                 document.getElementById(tabId).classList.add('active-pane');
-                if(tabId === 'eliminatorias') {
-                    setTimeout(() => drawCanvas(), 50);
-                }
+                if(tabId === 'eliminatorias') setTimeout(() => drawCanvas(), 50);
             });
         });
         window.addEventListener('resize', () => {
-            if(document.getElementById('eliminatorias').classList.contains('active-pane')) {
-                drawCanvas();
-            }
+            if(document.getElementById('eliminatorias').classList.contains('active-pane')) drawCanvas();
         });
     }
     
     loadFromStorage();
     setupTabs();
     setTimeout(() => {
-        if(document.getElementById('eliminatorias').classList.contains('active-pane')) {
-            drawCanvas();
-        }
+        if(document.getElementById('eliminatorias').classList.contains('active-pane')) drawCanvas();
     }, 200);
 </script>
 </body>
