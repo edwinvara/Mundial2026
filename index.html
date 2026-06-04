@@ -239,12 +239,11 @@
             margin-top: 6px;
         }
 
-        /* Canvas para la pestaña FINAL - nuevo diseño horizontal con scroll */
+        /* Canvas con scroll vertical y horizontal */
         .canvas-wrapper {
             background: #2e7d32;
             border-radius: 24px;
-            overflow-x: auto;
-            overflow-y: hidden;
+            overflow: auto;
             border: 2px solid #ffcc66;
             width: 100%;
             height: 70vh;
@@ -253,8 +252,8 @@
         canvas {
             display: block;
             background: radial-gradient(circle, #3cae5a, #1a5a2a);
-            width: 2400px;
-            height: 900px;
+            width: 2800px;
+            height: 1400px;
         }
         .info-badge {
             text-align: center;
@@ -299,9 +298,9 @@
 
 <div id="eliminatorias" class="tab-pane">
     <div class="canvas-wrapper" id="canvasWrapper">
-        <canvas id="bracketCanvas" width="2400" height="900"></canvas>
+        <canvas id="bracketCanvas" width="2800" height="1400"></canvas>
     </div>
-    <div class="info-badge">👆 Desliza horizontalmente con un dedo para ver todo el cuadro | No necesitas zoom</div>
+    <div class="info-badge">👆 Desliza en cualquier dirección para ver todo el cuadro | No necesitas zoom</div>
 </div>
 
 <script>
@@ -627,7 +626,7 @@
     }
     
     function loadFromStorage() {
-        const stored = localStorage.getItem('Mundial2026_v7');
+        const stored = localStorage.getItem('Mundial2026_v8');
         if(stored) {
             const data = JSON.parse(stored);
             groupMatches = data.groupMatches;
@@ -646,8 +645,8 @@
     }
     
     function saveToStorage() {
-        const toSave = { groupMatches, knockoutMatches, version:'7.0' };
-        localStorage.setItem('Mundial2026_v7', JSON.stringify(toSave));
+        const toSave = { groupMatches, knockoutMatches, version:'8.0' };
+        localStorage.setItem('Mundial2026_v8', JSON.stringify(toSave));
     }
     
     function renderGroupsUI() {
@@ -763,7 +762,7 @@
     }
     
     // --------------------------------------------------------------
-    // NUEVO CANVAS: diseño horizontal con final en el centro exacto
+    // NUEVO CANVAS: scroll vertical y horizontal, márgenes correctos
     // --------------------------------------------------------------
     function drawCanvas() {
         const canvas = document.getElementById('bracketCanvas');
@@ -777,62 +776,70 @@
         ctx.beginPath();
         ctx.strokeStyle = '#ffffbb';
         ctx.lineWidth = 1;
-        for(let i=0;i<w/50;i++) {
-            ctx.beginPath(); ctx.moveTo(i*50,0); ctx.lineTo(i*50,h); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(0,i*50); ctx.lineTo(w,i*50); ctx.stroke();
+        for(let i=0;i<w/60;i++) {
+            ctx.beginPath(); ctx.moveTo(i*60,0); ctx.lineTo(i*60,h); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0,i*60); ctx.lineTo(w,i*60); ctx.stroke();
         }
         
+        // Margen izquierdo para que no se corte el texto (80px)
+        const offsetX = 80;
         // Posiciones horizontales (X) para cada ronda
-        // Final en el centro: w/2 = 1200
-        // Semifinales: una a izquierda y otra a derecha de la final
-        // Cuartos, octavos, dieciseisavos hacia los extremos
         const centerX = w/2;
         const finalX = centerX;
-        const semiLeftX = centerX - 280;
-        const semiRightX = centerX + 280;
-        const cuartosLeftX = semiLeftX - 280;
-        const cuartosRightX = semiRightX + 280;
-        const octavosLeftX = cuartosLeftX - 280;
-        const octavosRightX = cuartosRightX + 280;
-        const dieciseisavosLeftX = octavosLeftX - 280;
-        const dieciseisavosRightX = octavosRightX + 280;
+        const semiLeftX = centerX - 300;
+        const semiRightX = centerX + 300;
+        const cuartosLeftX = semiLeftX - 300;
+        const cuartosRightX = semiRightX + 300;
+        const octavosLeftX = cuartosLeftX - 300;
+        const octavosRightX = cuartosRightX + 300;
+        const dieciseisavosLeftX = octavosLeftX - 300;
+        const dieciseisavosRightX = octavosRightX + 300;
         
-        // Posiciones verticales (Y) para cada ronda (centradas en el alto)
+        // Ajustar todo con offsetX para que el lado izquierdo tenga margen
+        const finalXadj = finalX + offsetX;
+        const semiLeftXadj = semiLeftX + offsetX;
+        const semiRightXadj = semiRightX + offsetX;
+        const cuartosLeftXadj = cuartosLeftX + offsetX;
+        const cuartosRightXadj = cuartosRightX + offsetX;
+        const octavosLeftXadj = octavosLeftX + offsetX;
+        const octavosRightXadj = octavosRightX + offsetX;
+        const dieciseisavosLeftXadj = dieciseisavosLeftX + offsetX;
+        const dieciseisavosRightXadj = dieciseisavosRightX + offsetX;
+        
+        // Posiciones verticales (Y) con espaciado suficiente para 8 partidos
         const centerY = h/2;
-        // Función para obtener Y según el índice del partido y el total de partidos en ese lado
-        function getY(idx, total, offsetY = 0) {
-            const step = 70; // separación vertical entre partidos
+        function getY(idx, total) {
+            const step = 130; // separación vertical entre partidos (más espacio)
             const startY = centerY - ((total-1) * step)/2;
-            return startY + (idx * step) + offsetY;
+            return startY + (idx * step);
         }
         
         // Dibujar un partido
         function drawMatch(x, y, eqA, eqB, gA, gB, ganador) {
-            const boxW = 220, boxH = 56;
+            const boxW = 230, boxH = 60;
             ctx.fillStyle = '#fef0cf';
             ctx.fillRect(x-boxW/2, y-boxH/2, boxW, boxH);
             ctx.strokeStyle = '#ff9900';
             ctx.lineWidth = 2;
             ctx.strokeRect(x-boxW/2, y-boxH/2, boxW, boxH);
             ctx.fillStyle = '#2c5a2a';
-            ctx.font = 'bold 13px monospace';
+            ctx.font = 'bold 14px monospace';
             let a = eqA ? (eqA.length>18?eqA.slice(0,15)+'…':eqA) : '???';
             let b = eqB ? (eqB.length>18?eqB.slice(0,15)+'…':eqB) : '???';
             ctx.fillText(a, x-boxW/2+8, y-8);
             ctx.fillText(b, x-boxW/2+8, y+16);
             if(gA!==null && gB!==null) {
                 ctx.fillStyle = '#d45a1a';
-                ctx.font = 'bold 13px monospace';
-                ctx.fillText(`${gA} - ${gB}`, x+boxW/2-50, y+4);
+                ctx.font = 'bold 14px monospace';
+                ctx.fillText(`${gA} - ${gB}`, x+boxW/2-55, y+4);
             }
             if(ganador && ganador!=='Empate') {
                 ctx.fillStyle = '#2e8b57';
-                ctx.font = 'bold 11px monospace';
-                ctx.fillText('✓', x+boxW/2-18, y-12);
+                ctx.font = 'bold 12px monospace';
+                ctx.fillText('✓', x+boxW/2-20, y-12);
             }
         }
         
-        // Conectar dos puntos con línea curva o recta
         function connect(x1, y1, x2, y2) {
             ctx.beginPath();
             ctx.moveTo(x1, y1);
@@ -843,31 +850,28 @@
         }
         
         // --------------------------------------------------------------
-        // DIBUJAR RONDA DE DIECISEISAVOS (16 partidos, 8 a cada lado)
+        // DIECISEISAVOS (16 partidos, 8 a cada lado)
         // --------------------------------------------------------------
         const r32 = knockoutMatches[0];
         if(r32 && r32.length === 16) {
-            // Lado izquierdo: partidos 0..7
             for(let i=0; i<8; i++) {
                 const partido = r32[i];
                 const y = getY(i, 8);
-                drawMatch(dieciseisavosLeftX, y, partido.equipoA, partido.equipoB, partido.gA, partido.gB, partido.ganador);
-                // Conectar a octavos (índice i/2)
+                drawMatch(dieciseisavosLeftXadj, y, partido.equipoA, partido.equipoB, partido.gA, partido.gB, partido.ganador);
                 if(i%2===0) {
                     const idxOct = Math.floor(i/2);
                     const yOct = getY(idxOct, 4);
-                    connect(dieciseisavosLeftX+110, y, octavosLeftX-110, yOct);
+                    connect(dieciseisavosLeftXadj+115, y, octavosLeftXadj-115, yOct);
                 }
             }
-            // Lado derecho: partidos 15..8 (invertidos)
             for(let i=0; i<8; i++) {
                 const partido = r32[15-i];
                 const y = getY(i, 8);
-                drawMatch(dieciseisavosRightX, y, partido.equipoA, partido.equipoB, partido.gA, partido.gB, partido.ganador);
+                drawMatch(dieciseisavosRightXadj, y, partido.equipoA, partido.equipoB, partido.gA, partido.gB, partido.ganador);
                 if(i%2===0) {
                     const idxOct = Math.floor(i/2);
                     const yOct = getY(idxOct, 4);
-                    connect(dieciseisavosRightX-110, y, octavosRightX+110, yOct);
+                    connect(dieciseisavosRightXadj-115, y, octavosRightXadj+115, yOct);
                 }
             }
         }
@@ -878,24 +882,23 @@
         const r16 = knockoutMatches[1];
         if(r16 && r16.length === 8) {
             for(let i=0; i<4; i++) {
-                const partidoIzq = r16[i];
+                const partido = r16[i];
                 const y = getY(i, 4);
-                drawMatch(octavosLeftX, y, partidoIzq.equipoA, partidoIzq.equipoB, partidoIzq.gA, partidoIzq.gB, partidoIzq.ganador);
-                // Conectar a cuartos
+                drawMatch(octavosLeftXadj, y, partido.equipoA, partido.equipoB, partido.gA, partido.gB, partido.ganador);
                 if(i%2===0) {
                     const idxCuar = Math.floor(i/2);
                     const yCuar = getY(idxCuar, 2);
-                    connect(octavosLeftX+110, y, cuartosLeftX-110, yCuar);
+                    connect(octavosLeftXadj+115, y, cuartosLeftXadj-115, yCuar);
                 }
             }
             for(let i=0; i<4; i++) {
-                const partidoDer = r16[7-i];
+                const partido = r16[7-i];
                 const y = getY(i, 4);
-                drawMatch(octavosRightX, y, partidoDer.equipoA, partidoDer.equipoB, partidoDer.gA, partidoDer.gB, partidoDer.ganador);
+                drawMatch(octavosRightXadj, y, partido.equipoA, partido.equipoB, partido.gA, partido.gB, partido.ganador);
                 if(i%2===0) {
                     const idxCuar = Math.floor(i/2);
                     const yCuar = getY(idxCuar, 2);
-                    connect(octavosRightX-110, y, cuartosRightX+110, yCuar);
+                    connect(octavosRightXadj-115, y, cuartosRightXadj+115, yCuar);
                 }
             }
         }
@@ -906,63 +909,59 @@
         const r8 = knockoutMatches[2];
         if(r8 && r8.length === 4) {
             for(let i=0; i<2; i++) {
-                const partidoIzq = r8[i];
+                const partido = r8[i];
                 const y = getY(i, 2);
-                drawMatch(cuartosLeftX, y, partidoIzq.equipoA, partidoIzq.equipoB, partidoIzq.gA, partidoIzq.gB, partidoIzq.ganador);
-                // Conectar a semifinal izquierda
-                connect(cuartosLeftX+110, y, semiLeftX-110, getY(0,1));
+                drawMatch(cuartosLeftXadj, y, partido.equipoA, partido.equipoB, partido.gA, partido.gB, partido.ganador);
+                connect(cuartosLeftXadj+115, y, semiLeftXadj-115, getY(0,1));
             }
             for(let i=0; i<2; i++) {
-                const partidoDer = r8[3-i];
+                const partido = r8[3-i];
                 const y = getY(i, 2);
-                drawMatch(cuartosRightX, y, partidoDer.equipoA, partidoDer.equipoB, partidoDer.gA, partidoDer.gB, partidoDer.ganador);
-                connect(cuartosRightX-110, y, semiRightX+110, getY(0,1));
+                drawMatch(cuartosRightXadj, y, partido.equipoA, partido.equipoB, partido.gA, partido.gB, partido.ganador);
+                connect(cuartosRightXadj-115, y, semiRightXadj+115, getY(0,1));
             }
         }
         
         // --------------------------------------------------------------
-        // SEMIFINALES (2 partidos, uno izquierda, uno derecha)
+        // SEMIFINALES (2 partidos)
         // --------------------------------------------------------------
         const r4 = knockoutMatches[3];
         if(r4 && r4.length === 2) {
-            const semiLeft = r4[0];
-            const semiRight = r4[1];
             const ySemi = getY(0,1);
-            drawMatch(semiLeftX, ySemi, semiLeft.equipoA, semiLeft.equipoB, semiLeft.gA, semiLeft.gB, semiLeft.ganador);
-            drawMatch(semiRightX, ySemi, semiRight.equipoA, semiRight.equipoB, semiRight.gA, semiRight.gB, semiRight.ganador);
-            // Conectar a la final
-            connect(semiLeftX+110, ySemi, finalX-110, centerY);
-            connect(semiRightX-110, ySemi, finalX+110, centerY);
+            drawMatch(semiLeftXadj, ySemi, r4[0].equipoA, r4[0].equipoB, r4[0].gA, r4[0].gB, r4[0].ganador);
+            drawMatch(semiRightXadj, ySemi, r4[1].equipoA, r4[1].equipoB, r4[1].gA, r4[1].gB, r4[1].ganador);
+            connect(semiLeftXadj+115, ySemi, finalXadj-115, centerY);
+            connect(semiRightXadj-115, ySemi, finalXadj+115, centerY);
         }
         
         // --------------------------------------------------------------
-        // FINAL (centro exacto)
+        // FINAL
         // --------------------------------------------------------------
         const finalMatch = knockoutMatches[4]?.[0];
         if(finalMatch) {
-            drawMatch(finalX, centerY, finalMatch.equipoA, finalMatch.equipoB, finalMatch.gA, finalMatch.gB, finalMatch.ganador);
+            drawMatch(finalXadj, centerY, finalMatch.equipoA, finalMatch.equipoB, finalMatch.gA, finalMatch.gB, finalMatch.ganador);
         }
         
         // --------------------------------------------------------------
         // TROFEO Y ETIQUETAS
         // --------------------------------------------------------------
-        ctx.font = 'bold 36px "Segoe UI"';
+        ctx.font = 'bold 42px "Segoe UI"';
         ctx.fillStyle = '#ffdd77';
         ctx.shadowBlur = 12;
-        ctx.fillText('🏆', finalX-25, centerY-70);
-        ctx.font = 'bold 18px monospace';
+        ctx.fillText('🏆', finalXadj-30, centerY-80);
+        ctx.font = 'bold 20px monospace';
         ctx.fillStyle = '#ffeeaa';
-        ctx.fillText('FINAL', finalX-35, centerY-100);
-        ctx.font = 'bold 14px monospace';
+        ctx.fillText('FINAL', finalXadj-35, centerY-110);
+        ctx.font = 'bold 16px monospace';
         ctx.fillStyle = '#ffdd77';
-        ctx.fillText('16avos', dieciseisavosLeftX-70, 50);
-        ctx.fillText('Octavos', octavosLeftX-50, 50);
-        ctx.fillText('Cuartos', cuartosLeftX-50, 50);
-        ctx.fillText('Semis', semiLeftX-50, 50);
-        ctx.fillText('16avos', dieciseisavosRightX+20, 50);
-        ctx.fillText('Octavos', octavosRightX+10, 50);
-        ctx.fillText('Cuartos', cuartosRightX+10, 50);
-        ctx.fillText('Semis', semiRightX+10, 50);
+        ctx.fillText('16avos', dieciseisavosLeftXadj-70, 70);
+        ctx.fillText('Octavos', octavosLeftXadj-60, 70);
+        ctx.fillText('Cuartos', cuartosLeftXadj-60, 70);
+        ctx.fillText('Semis', semiLeftXadj-50, 70);
+        ctx.fillText('16avos', dieciseisavosRightXadj+30, 70);
+        ctx.fillText('Octavos', octavosRightXadj+20, 70);
+        ctx.fillText('Cuartos', cuartosRightXadj+20, 70);
+        ctx.fillText('Semis', semiRightXadj+20, 70);
         ctx.shadowBlur = 0;
     }
     
