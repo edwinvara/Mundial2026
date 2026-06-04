@@ -421,32 +421,25 @@
     // --------------------------------------------------------------
     // DEFINICIÓN DE LA LLAVE OFICIAL (cruces según documento)
     // --------------------------------------------------------------
-    // Cada objeto tiene: id (para referencia), equipoA, equipoB, fecha, hora, sede, gA, gB, ganador
-    // Los equipos se asignarán dinámicamente según clasificados.
-    // Definimos la estructura de 16avos (ronda 0), octavos (ronda1), cuartos (ronda2), semis (ronda3), final (ronda4)
-    // Y también el partido por el tercer puesto (opcional, lo añadimos al final)
-    
-    // Lista de cruces de 16avos (según la tabla que diste)
     const dieciseisavosDef = [
-        { id:73,  tipo: "2A_vs_2B",       desc: "2° Grupo A vs 2° Grupo B",            fecha:"Dom 28/06", hora:"13:00", sede:"SoFi Stadium, Los Angeles" },  // -2h: 15->13
-        { id:74,  tipo: "1E_vs_3_ABCD_F", desc: "1° Grupo E vs 3° de A/B/C/D/F",       fecha:"Lun 29/06", hora:"14:30", sede:"Gillette Stadium, Foxborough" }, // 16:30->14:30
-        { id:75,  tipo: "1F_vs_2C",       desc: "1° Grupo F vs 2° Grupo C",            fecha:"Lun 29/06", hora:"19:00", sede:"Estadio BBVA, Monterrey" }, // 21->19
-        { id:76,  tipo: "1C_vs_2F",       desc: "1° Grupo C vs 2° Grupo F",            fecha:"Lun 29/06", hora:"11:00", sede:"NRG Stadium, Houston" }, // 13->11
-        { id:77,  tipo: "1I_vs_3_CDFGH",  desc: "1° Grupo I vs 3° de C/D/F/G/H",       fecha:"Mar 30/06", hora:"15:00", sede:"MetLife Stadium, East Rutherford" }, // 17->15
-        { id:78,  tipo: "2E_vs_2I",       desc: "2° Grupo E vs 2° Grupo I",            fecha:"Mar 30/06", hora:"11:00", sede:"AT&T Stadium, Arlington" }, // 13->11
-        { id:79,  tipo: "1A_vs_3_CEFHI",  desc: "1° Grupo A vs 3° de C/E/F/H/I",       fecha:"Mar 30/06", hora:"19:00", sede:"Estadio Azteca, CDMX" }, // 21->19
-        { id:80,  tipo: "1L_vs_3_EHIJK",  desc: "1° Grupo L vs 3° de E/H/I/J/K",       fecha:"Mié 01/07", hora:"10:00", sede:"Mercedes-Benz Stadium, Atlanta" }, // 12->10
-        { id:81,  tipo: "1D_vs_3_BEFIJ",  desc: "1° Grupo D vs 3° de B/E/F/I/J",       fecha:"Mié 01/07", hora:"18:00", sede:"Levi's Stadium, Santa Clara" }, // 20->18
-        { id:82,  tipo: "1G_vs_3_AEHIJ",  desc: "1° Grupo G vs 3° de A/E/H/I/J",       fecha:"Mié 01/07", hora:"14:00", sede:"Lumen Field, Seattle" }, // 16->14
-        { id:83,  tipo: "2K_vs_2L",       desc: "2° Grupo K vs 2° Grupo L",            fecha:"Jue 02/07", hora:"17:00", sede:"BMO Field, Toronto" }, // 19->17
-        { id:84,  tipo: "1H_vs_2J",       desc: "1° Grupo H vs 2° Grupo J",            fecha:"Jue 02/07", hora:"13:00", sede:"SoFi Stadium, Los Angeles" }, // 15->13
-        { id:85,  tipo: "1B_vs_3_EFGIJ",  desc: "1° Grupo B vs 3° de E/F/G/I/J",       fecha:"Jue 02/07", hora:"21:00", sede:"BC Place, Vancouver" }, // 23->21
-        { id:86,  tipo: "1J_vs_2H",       desc: "1° Grupo J vs 2° Grupo H",            fecha:"Vie 03/07", hora:"16:00", sede:"Hard Rock Stadium, Miami" }, // 18->16
-        { id:87,  tipo: "1K_vs_3_DEIJL",  desc: "1° Grupo K vs 3° de D/E/I/J/L",       fecha:"Vie 03/07", hora:"19:30", sede:"Arrowhead Stadium, Kansas City" }, // 21:30->19:30
-        { id:88,  tipo: "2D_vs_2G",       desc: "2° Grupo D vs 2° Grupo G",            fecha:"Vie 03/07", hora:"12:00", sede:"AT&T Stadium, Arlington" } // 14->12
+        { id:73,  tipo: "2A_vs_2B",       desc: "2° Grupo A vs 2° Grupo B",            fecha:"Dom 28/06", hora:"13:00", sede:"SoFi Stadium, Los Angeles" },
+        { id:74,  tipo: "1E_vs_3_ABCD_F", desc: "1° Grupo E vs 3° de A/B/C/D/F",       fecha:"Lun 29/06", hora:"14:30", sede:"Gillette Stadium, Foxborough" },
+        { id:75,  tipo: "1F_vs_2C",       desc: "1° Grupo F vs 2° Grupo C",            fecha:"Lun 29/06", hora:"19:00", sede:"Estadio BBVA, Monterrey" },
+        { id:76,  tipo: "1C_vs_2F",       desc: "1° Grupo C vs 2° Grupo F",            fecha:"Lun 29/06", hora:"11:00", sede:"NRG Stadium, Houston" },
+        { id:77,  tipo: "1I_vs_3_CDFGH",  desc: "1° Grupo I vs 3° de C/D/F/G/H",       fecha:"Mar 30/06", hora:"15:00", sede:"MetLife Stadium, East Rutherford" },
+        { id:78,  tipo: "2E_vs_2I",       desc: "2° Grupo E vs 2° Grupo I",            fecha:"Mar 30/06", hora:"11:00", sede:"AT&T Stadium, Arlington" },
+        { id:79,  tipo: "1A_vs_3_CEFHI",  desc: "1° Grupo A vs 3° de C/E/F/H/I",       fecha:"Mar 30/06", hora:"19:00", sede:"Estadio Azteca, CDMX" },
+        { id:80,  tipo: "1L_vs_3_EHIJK",  desc: "1° Grupo L vs 3° de E/H/I/J/K",       fecha:"Mié 01/07", hora:"10:00", sede:"Mercedes-Benz Stadium, Atlanta" },
+        { id:81,  tipo: "1D_vs_3_BEFIJ",  desc: "1° Grupo D vs 3° de B/E/F/I/J",       fecha:"Mié 01/07", hora:"18:00", sede:"Levi's Stadium, Santa Clara" },
+        { id:82,  tipo: "1G_vs_3_AEHIJ",  desc: "1° Grupo G vs 3° de A/E/H/I/J",       fecha:"Mié 01/07", hora:"14:00", sede:"Lumen Field, Seattle" },
+        { id:83,  tipo: "2K_vs_2L",       desc: "2° Grupo K vs 2° Grupo L",            fecha:"Jue 02/07", hora:"17:00", sede:"BMO Field, Toronto" },
+        { id:84,  tipo: "1H_vs_2J",       desc: "1° Grupo H vs 2° Grupo J",            fecha:"Jue 02/07", hora:"13:00", sede:"SoFi Stadium, Los Angeles" },
+        { id:85,  tipo: "1B_vs_3_EFGIJ",  desc: "1° Grupo B vs 3° de E/F/G/I/J",       fecha:"Jue 02/07", hora:"21:00", sede:"BC Place, Vancouver" },
+        { id:86,  tipo: "1J_vs_2H",       desc: "1° Grupo J vs 2° Grupo H",            fecha:"Vie 03/07", hora:"16:00", sede:"Hard Rock Stadium, Miami" },
+        { id:87,  tipo: "1K_vs_3_DEIJL",  desc: "1° Grupo K vs 3° de D/E/I/J/L",       fecha:"Vie 03/07", hora:"19:30", sede:"Arrowhead Stadium, Kansas City" },
+        { id:88,  tipo: "2D_vs_2G",       desc: "2° Grupo D vs 2° Grupo G",            fecha:"Vie 03/07", hora:"12:00", sede:"AT&T Stadium, Arlington" }
     ];
     
-    // Octavos (ronda 1) - según tu tabla
     const octavosDef = [
         { id:89,  tipo: "W74_vs_W77", fecha:"Sáb 04/07", hora:"15:00", sede:"Lincoln Financial Field, Philadelphia" },
         { id:90,  tipo: "W73_vs_W75", fecha:"Sáb 04/07", hora:"11:00", sede:"NRG Stadium, Houston" },
@@ -458,7 +451,6 @@
         { id:96,  tipo: "W85_vs_W87", fecha:"Mar 07/07", hora:"14:00", sede:"BC Place, Vancouver" }
     ];
     
-    // Cuartos (ronda 2)
     const cuartosDef = [
         { id:97,  tipo: "W89_vs_W90", fecha:"Jue 09/07", hora:"14:00", sede:"Gillette Stadium, Foxborough" },
         { id:98,  tipo: "W93_vs_W94", fecha:"Vie 10/07", hora:"13:00", sede:"SoFi Stadium, Los Angeles" },
@@ -466,42 +458,37 @@
         { id:100, tipo: "W95_vs_W96", fecha:"Sáb 11/07", hora:"19:00", sede:"Arrowhead Stadium, Kansas City" }
     ];
     
-    // Semis (ronda 3)
     const semisDef = [
         { id:101, tipo: "W97_vs_W98", fecha:"Mar 14/07", hora:"13:00", sede:"AT&T Stadium, Arlington" },
         { id:102, tipo: "W99_vs_W100", fecha:"Mié 15/07", hora:"13:00", sede:"Mercedes-Benz Stadium, Atlanta" }
     ];
     
-    // Final (ronda 4)
     const finalDef = [
-        { id:103, tipo: "W101_vs_W102", fecha:"Dom 19/07", hora:"15:00", sede:"Hard Rock Stadium, Miami" } // Supuesta fecha final (no la diste, pongo domingo 19)
+        { id:103, tipo: "W101_vs_W102", fecha:"Dom 19/07", hora:"15:00", sede:"Hard Rock Stadium, Miami" }
     ];
     
     // --------------------------------------------------------------
-    // LÓGICA PARA ASIGNAR EQUIPOS A CADA CRUCE SEGÚN CLASIFICACIÓN
+    // LÓGICA PARA ASIGNAR EQUIPOS A CADA CRUCE
     // --------------------------------------------------------------
-    // Necesitamos acceder a los clasificados: lista de objetos { nombre, grupo, posicion (1,2,3), pts... }
-    // Función que dado un tipo de cruce devuelve [equipoA, equipoB]
-    function obtenerEquiposParaCruce(tipo, clasificados) {
-        // clasificados es un array de 32 equipos ordenados según la posición? No, tenemos que buscarlos por grupo y posición.
-        // Es más fácil crear un mapa: por grupo, los equipos ordenados.
-        const gruposMap = {};
-        gruposFull.forEach(g => {
-            gruposMap[g.id] = getEquiposOrdenados(g.id); // ya los tenemos ordenados (0:1ro,1:2do,2:3ro,3:4to)
-        });
-        
-        // Función auxiliar para obtener el nombre del equipo según grupo y posición (1,2,3)
+    let knockoutMatches = [];
+    
+    function getEquiposOrdenados(grupoId) {
+        const grupo = gruposFull.find(g => g.id === grupoId);
+        return grupo.equipos.map(eq => ({
+            nombre: eq,
+            flag: grupo.flags[grupo.equipos.indexOf(eq)],
+            ...groupStats[`${grupoId}-${eq}`]
+        })).sort((a,b) => b.pts - a.pts || (b.gf-b.gc) - (a.gf-a.gc) || b.gf - a.gf);
+    }
+    
+    function obtenerEquiposParaCruce(tipo, gruposMap) {
         function getEquipo(grupo, pos) {
             const ordenados = gruposMap[grupo];
             if(!ordenados) return '???';
-            if(pos === 1) return ordenados[0]?.nombre || '???';
-            if(pos === 2) return ordenados[1]?.nombre || '???';
-            if(pos === 3) return ordenados[2]?.nombre || '???';
+            if(pos===1) return ordenados[0]?.nombre || '???';
+            if(pos===2) return ordenados[1]?.nombre || '???';
             return '???';
         }
-        
-        // Para los terceros lugares, necesitamos seleccionar el mejor tercero de un conjunto de grupos
-        // Por ejemplo: "3° de A/B/C/D/F" significa: entre los grupos A,B,C,D,F, elegir el mejor tercer lugar (más puntos, mejor diferencia)
         function getMejorTercero(gruposList) {
             let mejores = [];
             for(let g of gruposList) {
@@ -513,7 +500,6 @@
             mejores.sort((a,b) => b.pts - a.pts || b.dif - a.dif || b.gf - a.gf);
             return mejores[0]?.nombre || '???';
         }
-        
         switch(tipo) {
             case "2A_vs_2B": return [getEquipo('A',2), getEquipo('B',2)];
             case "1E_vs_3_ABCD_F": return [getEquipo('E',1), getMejorTercero(['A','B','C','D','F'])];
@@ -535,15 +521,13 @@
         }
     }
     
-    // --------------------------------------------------------------
-    // ESTRUCTURA DE ELIMINATORIAS (knockoutMatches) basada en cruces oficiales
-    // --------------------------------------------------------------
-    let knockoutMatches = []; // array de 5 rondas: 0:16avos, 1:octavos, 2:cuartos, 3:semis, 4:final
-    
-    function construirKnockoutDesdeDefiniciones(clasificados) {
-        // Crear partidos de 16avos
+    function construirKnockoutDesdeDefiniciones() {
+        const gruposMap = {};
+        gruposFull.forEach(g => {
+            gruposMap[g.id] = getEquiposOrdenados(g.id);
+        });
         const ronda32 = dieciseisavosDef.map(def => {
-            const [eqA, eqB] = obtenerEquiposParaCruce(def.tipo, clasificados);
+            const [eqA, eqB] = obtenerEquiposParaCruce(def.tipo, gruposMap);
             return {
                 id: def.id,
                 tipo: def.tipo,
@@ -557,129 +541,53 @@
                 ganador: null
             };
         });
-        
-        // Octavos: inicialmente sin equipos (se llenarán al avanzar)
         const ronda16 = octavosDef.map(def => ({
             id: def.id,
             tipo: def.tipo,
-            equipoA: null,
-            equipoB: null,
-            fecha: def.fecha,
-            hora: def.hora,
-            sede: def.sede,
-            gA: null,
-            gB: null,
-            ganador: null
+            equipoA: null, equipoB: null,
+            fecha: def.fecha, hora: def.hora, sede: def.sede,
+            gA: null, gB: null, ganador: null
         }));
-        
-        // Cuartos
         const ronda8 = cuartosDef.map(def => ({
-            id: def.id,
-            tipo: def.tipo,
-            equipoA: null,
-            equipoB: null,
-            fecha: def.fecha,
-            hora: def.hora,
-            sede: def.sede,
-            gA: null,
-            gB: null,
-            ganador: null
+            id: def.id, tipo: def.tipo,
+            equipoA: null, equipoB: null,
+            fecha: def.fecha, hora: def.hora, sede: def.sede,
+            gA: null, gB: null, ganador: null
         }));
-        
-        // Semis
         const ronda4 = semisDef.map(def => ({
-            id: def.id,
-            tipo: def.tipo,
-            equipoA: null,
-            equipoB: null,
-            fecha: def.fecha,
-            hora: def.hora,
-            sede: def.sede,
-            gA: null,
-            gB: null,
-            ganador: null
+            id: def.id, tipo: def.tipo,
+            equipoA: null, equipoB: null,
+            fecha: def.fecha, hora: def.hora, sede: def.sede,
+            gA: null, gB: null, ganador: null
         }));
-        
-        // Final
         const ronda2 = finalDef.map(def => ({
-            id: def.id,
-            tipo: def.tipo,
-            equipoA: null,
-            equipoB: null,
-            fecha: def.fecha,
-            hora: def.hora,
-            sede: def.sede,
-            gA: null,
-            gB: null,
-            ganador: null
+            id: def.id, tipo: def.tipo,
+            equipoA: null, equipoB: null,
+            fecha: def.fecha, hora: def.hora, sede: def.sede,
+            gA: null, gB: null, ganador: null
         }));
-        
         knockoutMatches = [ronda32, ronda16, ronda8, ronda4, ronda2];
     }
     
-    // Función para actualizar todos los ganadores y propagar
     function actualizarBracketCompleto() {
-        // 1. Actualizar los equipos de 16avos según clasificación actual (sin sobreescribir resultados)
-        const clasificadosActuales = obtenerClasificados(); // pero usamos gruposMap
-        // Reconstruir los equipos de 16avos respetando partidos que ya tienen resultado
         const gruposMap = {};
         gruposFull.forEach(g => {
             gruposMap[g.id] = getEquiposOrdenados(g.id);
         });
-        function getEquipo(grupo, pos) {
-            const ord = gruposMap[grupo];
-            if(!ord) return '???';
-            if(pos===1) return ord[0]?.nombre || '???';
-            if(pos===2) return ord[1]?.nombre || '???';
-            return '???';
-        }
-        function getMejorTercero(gruposList) {
-            let mejores = [];
-            for(let g of gruposList) {
-                const ord = gruposMap[g];
-                if(ord && ord[2]) mejores.push({ nombre: ord[2].nombre, pts: ord[2].pts, dif: ord[2].gf-ord[2].gc, gf: ord[2].gf });
-            }
-            mejores.sort((a,b)=>b.pts-a.pts || b.dif-a.dif || b.gf-a.gf);
-            return mejores[0]?.nombre || '???';
-        }
-        
         if(knockoutMatches[0]) {
             for(let i=0; i<dieciseisavosDef.length; i++) {
                 const def = dieciseisavosDef[i];
                 const partido = knockoutMatches[0][i];
                 if(partido.gA === null && partido.gB === null) {
-                    // solo actualizar si no hay resultado
-                    let eqA, eqB;
-                    switch(def.tipo) {
-                        case "2A_vs_2B": eqA=getEquipo('A',2); eqB=getEquipo('B',2); break;
-                        case "1E_vs_3_ABCD_F": eqA=getEquipo('E',1); eqB=getMejorTercero(['A','B','C','D','F']); break;
-                        case "1F_vs_2C": eqA=getEquipo('F',1); eqB=getEquipo('C',2); break;
-                        case "1C_vs_2F": eqA=getEquipo('C',1); eqB=getEquipo('F',2); break;
-                        case "1I_vs_3_CDFGH": eqA=getEquipo('I',1); eqB=getMejorTercero(['C','D','F','G','H']); break;
-                        case "2E_vs_2I": eqA=getEquipo('E',2); eqB=getEquipo('I',2); break;
-                        case "1A_vs_3_CEFHI": eqA=getEquipo('A',1); eqB=getMejorTercero(['C','E','F','H','I']); break;
-                        case "1L_vs_3_EHIJK": eqA=getEquipo('L',1); eqB=getMejorTercero(['E','H','I','J','K']); break;
-                        case "1D_vs_3_BEFIJ": eqA=getEquipo('D',1); eqB=getMejorTercero(['B','E','F','I','J']); break;
-                        case "1G_vs_3_AEHIJ": eqA=getEquipo('G',1); eqB=getMejorTercero(['A','E','H','I','J']); break;
-                        case "2K_vs_2L": eqA=getEquipo('K',2); eqB=getEquipo('L',2); break;
-                        case "1H_vs_2J": eqA=getEquipo('H',1); eqB=getEquipo('J',2); break;
-                        case "1B_vs_3_EFGIJ": eqA=getEquipo('B',1); eqB=getMejorTercero(['E','F','G','I','J']); break;
-                        case "1J_vs_2H": eqA=getEquipo('J',1); eqB=getEquipo('H',2); break;
-                        case "1K_vs_3_DEIJL": eqA=getEquipo('K',1); eqB=getMejorTercero(['D','E','I','J','L']); break;
-                        case "2D_vs_2G": eqA=getEquipo('D',2); eqB=getEquipo('G',2); break;
-                        default: eqA='???'; eqB='???';
-                    }
+                    const [eqA, eqB] = obtenerEquiposParaCruce(def.tipo, gruposMap);
                     partido.equipoA = eqA;
                     partido.equipoB = eqB;
                 }
             }
         }
-        
-        // Propagar resultados hacia adelante
         for(let r=0; r<knockoutMatches.length-1; r++) {
             const actual = knockoutMatches[r];
             const siguiente = knockoutMatches[r+1];
-            // Limpiar siguiente ronda solo donde no hay resultado
             for(let j=0; j<siguiente.length; j++) {
                 if(siguiente[j].gA === null && siguiente[j].gB === null) {
                     siguiente[j].equipoA = null;
@@ -687,13 +595,12 @@
                     siguiente[j].ganador = null;
                 }
             }
-            // Por cada partido de la ronda actual
             for(let i=0; i<actual.length; i++) {
                 const p = actual[i];
                 if(p.gA !== null && p.gB !== null) {
                     p.ganador = p.gA > p.gB ? p.equipoA : (p.gB > p.gA ? p.equipoB : null);
                     if(p.ganador) {
-                        const idxSig = Math.floor(i/2); // porque 2 partidos alimentan 1 de la siguiente
+                        const idxSig = Math.floor(i/2);
                         if(siguiente[idxSig]) {
                             if(i % 2 === 0) siguiente[idxSig].equipoA = p.ganador;
                             else siguiente[idxSig].equipoB = p.ganador;
@@ -703,12 +610,12 @@
             }
         }
         renderKnockoutUI();
-        drawCanvas(); // para el canvas final
+        drawCanvas();
         saveToStorage();
     }
     
     // --------------------------------------------------------------
-    // ESTADOS DE GRUPOS (igual que antes)
+    // ESTADOS DE GRUPOS (localStorage)
     // --------------------------------------------------------------
     let groupStats = {};
     let groupMatches = {};
@@ -735,11 +642,7 @@
     }
     
     function saveToStorage() {
-        const toSave = {
-            groupMatches: groupMatches,
-            knockoutMatches: knockoutMatches,
-            version: '5.0'
-        };
+        const toSave = { groupMatches, knockoutMatches, version:'5.0' };
         localStorage.setItem('Mundial2026_v5', JSON.stringify(toSave));
     }
     
@@ -790,15 +693,6 @@
             }
         });
         saveToStorage();
-    }
-    
-    function getEquiposOrdenados(grupoId) {
-        const grupo = gruposFull.find(g => g.id === grupoId);
-        return grupo.equipos.map(eq => ({
-            nombre: eq,
-            flag: grupo.flags[grupo.equipos.indexOf(eq)],
-            ...groupStats[`${grupoId}-${eq}`]
-        })).sort((a,b) => b.pts - a.pts || (b.gf-b.gc) - (a.gf-a.gc) || b.gf - a.gf);
     }
     
     function obtenerClasificados() {
@@ -941,7 +835,9 @@
         });
     }
     
-    // Canvas para la pestaña FINAL (versión anterior que funcionaba bien)
+    // --------------------------------------------------------------
+    // CANVAS FINAL (CORREGIDO: mayor separación vertical entre semifinales y final)
+    // --------------------------------------------------------------
     function drawCanvas() {
         const canvas = document.getElementById('bracketCanvas');
         if(!canvas) return;
@@ -994,8 +890,8 @@
             }
         }
         function getY(r,m,total) {
-            const startY = centerY - (total-1)*45;
-            return startY + m * 90;
+            const startY = centerY - (total-1)*55;  // CAMBIO: aumenté el espaciado vertical de 45 a 55
+            return startY + m * 110;                // CAMBIO: incrementé el paso de 90 a 110
         }
         for(let r=0; r<=4; r++) {
             const matches = knockoutMatches[r];
@@ -1042,17 +938,21 @@
         }
         const finalMatch = knockoutMatches[4]?.[0];
         if(finalMatch) {
-            drawMatch(centerX, centerY-60, finalMatch.equipoA, finalMatch.equipoB, finalMatch.gA, finalMatch.gB, finalMatch.ganador);
+            // CAMBIO: ajusté la posición de la final (más abajo) para mayor separación
+            const finalY = centerY + 50;  // antes era centerY-60
+            drawMatch(centerX, finalY, finalMatch.equipoA, finalMatch.equipoB, finalMatch.gA, finalMatch.gB, finalMatch.ganador);
             const semis = knockoutMatches[3];
             if(semis && semis[0]) {
                 const yL = getY(3,0,1);
                 ctx.beginPath(); ctx.moveTo(leftX[3]+100, yL); ctx.lineTo(centerX-100, yL);
-                ctx.lineTo(centerX-100, centerY-60); ctx.lineTo(centerX-40, centerY-60); ctx.stroke();
+                ctx.lineTo(centerX-100, finalY); ctx.lineTo(centerX-40, finalY);
+                ctx.stroke();
             }
             if(semis && semis[1]) {
                 const yR = getY(3,1,1);
                 ctx.beginPath(); ctx.moveTo(rightX[3]-100, yR); ctx.lineTo(centerX+100, yR);
-                ctx.lineTo(centerX+100, centerY-60); ctx.lineTo(centerX+40, centerY-60); ctx.stroke();
+                ctx.lineTo(centerX+100, finalY); ctx.lineTo(centerX+40, finalY);
+                ctx.stroke();
             }
         }
         ctx.fillStyle = '#ffdd77';
